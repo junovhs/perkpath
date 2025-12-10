@@ -1,99 +1,22 @@
 [meta]
-title = "PerkPath by TravelPerks"
-description = "Visual itinerary map generator"
+title = "Project Roadmap"
+description = ""
 
 [[sections]]
 id = "v0.1.0"
-title = "Initialization"
-status = "done"
+title = "v0.1.0"
+status = "current"
 order = 0
 
 [[sections]]
 id = "v0.2.0"
-title = "Refactoring & SlopChop Compliance"
-status = "current"
+title = "v0.2.0"
+status = "pending"
 order = 1
 
 [[tasks]]
-id = "init-project"
-text = "Set up package.json and dependencies"
-status = "done"
-section = "v0.1.0"
-order = 0
-
-[[tasks]]
-id = "lint-config"
-text = "Configure Biome"
-status = "done"
-section = "v0.1.0"
-order = 1
-
-[[tasks]]
-id = "extract-css"
-text = "Extract styles to src/style.css"
-status = "done"
-section = "v0.1.0"
-order = 2
-
-[[tasks]]
-id = "refactor-ts"
-text = "Refactor Logic to src/main.ts with Types"
-status = "done"
-section = "v0.1.0"
-order = 3
-
-[[tasks]]
-id = "install-deps"
-text = "Run npm install"
-status = "done"
-section = "v0.1.0"
-order = 4
-
-[[tasks]]
-id = "verify-build"
-text = "Verify build (npm run dev)"
-status = "done"
-section = "v0.1.0"
-order = 5
-
-[[tasks]]
-id = "atomize-codebase"
-text = "Split monolithic files into atomic modules (geo, layout, prompt, ui)"
-status = "done"
-section = "v0.1.0"
-order = 6
-
-[[tasks]]
-id = "fix-html-parse-error"
-text = "Fix control characters in index.html causing parse errors"
+id = "documentation"
+text = '"Create README and DESIGN_DOC"'
 status = "done"
 section = "v0.2.0"
 order = 0
-
-[[tasks]]
-id = "fix-high-arity"
-text = "Refactor layout.ts to use context objects (max 5 args)"
-status = "done"
-section = "v0.2.0"
-order = 1
-
-[[tasks]]
-id = "split-main"
-text = "Extract UI helpers from main.ts to reduce token count"
-status = "done"
-section = "v0.2.0"
-order = 2
-
-[[tasks]]
-id = "split-map"
-text = "Extract legend to separate module, reduce complexity"
-status = "done"
-section = "v0.2.0"
-order = 3
-
-[[tasks]]
-id = "rename-perkpath"
-text = "Rename project to PerkPath by TravelPerks"
-status = "done"
-section = "v0.2.0"
-order = 4

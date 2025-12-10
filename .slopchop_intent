@@ -1,0 +1,5 @@
+Initialize project configuration (Batch 1 of 4).
+CHANGES:
+1.  Create `package.json` with Vite/TypeScript/Biome dependencies.
+2.  Create `biome.json` for high-integrity linting.
+3.  Create `src/vite-env.d.ts`.

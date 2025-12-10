@@ -4,7 +4,7 @@ A tool to generate visual itinerary maps from text descriptions using AI.
 
 ## Setup
 
-1.  **Install Dependencies** (Critical first step)
+1.  **Install Dependencies**
     ```bash
     npm install
     ```

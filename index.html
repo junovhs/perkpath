@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Itinerary Map Generator</title>
+    <title>PerkPath by TravelPerks</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -16,8 +16,8 @@
     <div class="app">
       <aside class="sidebar">
         <header class="sidebar-header">
-          <h1>Route<span class="accent">Map</span></h1>
-          <p class="tagline">Itinerary  Prompt  JSON  Map</p>
+          <h1>Perk<span class="accent">Path</span></h1>
+          <p class="tagline">Itinerary &rarr; Prompt &rarr; JSON &rarr; Map</p>
         </header>
 
         <nav class="tabs">
@@ -34,7 +34,7 @@
               id="itineraryInput"
               placeholder="Part 1: South Africa, Victoria Falls, & Nairobi..."
             ></textarea>
-            <button id="generatePrompt" class="primary-btn">Generate AI Prompt </button>
+            <button id="generatePrompt" class="primary-btn">Generate AI Prompt &rarr;</button>
           </div>
         </section>
 
@@ -44,7 +44,7 @@
             <div class="prompt-output" id="promptOutput">
               <span class="placeholder">Enter itinerary text first...</span>
             </div>
-            <button id="copyPrompt" class="primary-btn" disabled>?? Copy to Clipboard</button>
+            <button id="copyPrompt" class="primary-btn" disabled>&#128203; Copy to Clipboard</button>
             <p class="hint">
               Paste this to Claude, ChatGPT, etc. Then paste the JSON response in the Render tab.
             </p>
@@ -58,7 +58,7 @@
               id="jsonInput"
               placeholder='{ "title": "My Trip", "locations": [...], "segments": [...] }'
             ></textarea>
-            <button id="renderMap" class="primary-btn">??? Render Map</button>
+            <button id="renderMap" class="primary-btn">&#128506; Render Map</button>
           </div>
 
           <div class="panel">

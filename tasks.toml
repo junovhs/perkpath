@@ -1,12 +1,18 @@
 [meta]
-title = "RouteMap Generator"
-description = "Refactoring from single HTML to structured TypeScript"
+title = "PerkPath by TravelPerks"
+description = "Visual itinerary map generator"
 
 [[sections]]
 id = "v0.1.0"
 title = "Initialization"
-status = "current"
+status = "done"
 order = 0
+
+[[sections]]
+id = "v0.2.0"
+title = "Refactoring & SlopChop Compliance"
+status = "current"
+order = 1
 
 [[tasks]]
 id = "init-project"
@@ -56,3 +62,38 @@ text = "Split monolithic files into atomic modules (geo, layout, prompt, ui)"
 status = "done"
 section = "v0.1.0"
 order = 6
+
+[[tasks]]
+id = "fix-html-parse-error"
+text = "Fix control characters in index.html causing parse errors"
+status = "done"
+section = "v0.2.0"
+order = 0
+
+[[tasks]]
+id = "fix-high-arity"
+text = "Refactor layout.ts to use context objects (max 5 args)"
+status = "done"
+section = "v0.2.0"
+order = 1
+
+[[tasks]]
+id = "split-main"
+text = "Extract UI helpers from main.ts to reduce token count"
+status = "done"
+section = "v0.2.0"
+order = 2
+
+[[tasks]]
+id = "split-map"
+text = "Extract legend to separate module, reduce complexity"
+status = "done"
+section = "v0.2.0"
+order = 3
+
+[[tasks]]
+id = "rename-perkpath"
+text = "Rename project to PerkPath by TravelPerks"
+status = "done"
+section = "v0.2.0"
+order = 4

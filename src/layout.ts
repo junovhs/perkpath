@@ -1,45 +1,36 @@
-import type { AppConfig, LabelRect, Location } from "./types";
+import type { LabelPlacementContext, LabelRect, PlacedLabel } from "./types";
 
-export interface PlacedLabel {
-    location: Location;
-    rect: LabelRect;
-    position: string;
-}
+const POSITIONS = [
+    "right",
+    "top-right",
+    "bottom-right",
+    "left",
+    "top-left",
+    "bottom-left",
+    "top",
+    "bottom",
+];
 
 export function findBestLabelPosition(
-    location: Location,
+    location: { name: string; lat: number; lng: number },
     fontSize: number,
-    map: L.Map,
-    placedLabels: PlacedLabel[],
-    allLocations: Location[],
-    config: AppConfig,
+    ctx: LabelPlacementContext,
 ): string {
     const labelSize = estimateLabelSize(location.name, fontSize);
-    const pixelPos = map.latLngToContainerPoint([location.lat, location.lng]);
-    const positions = [
-        "right",
-        "top-right",
-        "bottom-right",
-        "left",
-        "top-left",
-        "bottom-left",
-        "top",
-        "bottom",
-    ];
+    const pixelPos = ctx.map.latLngToContainerPoint([location.lat, location.lng]);
 
     let bestPosition = "right";
     let bestScore = Number.NEGATIVE_INFINITY;
 
-    for (const pos of positions) {
+    for (const pos of POSITIONS) {
         const rect = getLabelRect(pixelPos, labelSize, pos);
-        const score = calculateScore(rect, pos, location, placedLabels, allLocations, map, config);
+        const score = calculatePositionScore(rect, pos, ctx);
 
         if (score > bestScore) {
             bestScore = score;
             bestPosition = pos;
         }
 
-        // Optimization: Early exit if perfect score
         if (score >= 0) return pos;
     }
 
@@ -92,7 +83,7 @@ export function getLabelRect(
     };
 }
 
-function estimateLabelSize(text: string, fontSize: number) {
+export function estimateLabelSize(text: string, fontSize: number) {
     const charWidth = fontSize * 0.65;
     const padding = 24;
     return {
@@ -101,21 +92,13 @@ function estimateLabelSize(text: string, fontSize: number) {
     };
 }
 
-function calculateScore(
-    rect: LabelRect,
-    pos: string,
-    location: Location,
-    placedLabels: PlacedLabel[],
-    allLocations: Location[],
-    map: L.Map,
-    config: AppConfig,
-): number {
+function calculatePositionScore(rect: LabelRect, pos: string, ctx: LabelPlacementContext): number {
     let score = 0;
     if (pos.includes("right")) score += 10;
     if (pos.includes("top")) score += 5;
 
-    if (checkLabelOverlap(rect, placedLabels)) score -= 100;
-    if (checkNodeOverlap(rect, location, allLocations, map, config)) score -= 50;
+    if (hasLabelOverlap(rect, ctx.placedLabels)) score -= 100;
+    if (hasNodeOverlap(rect, ctx)) score -= 50;
 
     return score;
 }
@@ -129,24 +112,17 @@ function rectsOverlap(r1: LabelRect, r2: LabelRect, padding = 5): boolean {
     );
 }
 
-function checkLabelOverlap(rect: LabelRect, placedLabels: PlacedLabel[]): boolean {
+function hasLabelOverlap(rect: LabelRect, placedLabels: PlacedLabel[]): boolean {
     for (const placed of placedLabels) {
         if (rectsOverlap(rect, placed.rect)) return true;
     }
     return false;
 }
 
-function checkNodeOverlap(
-    rect: LabelRect,
-    currentLocation: Location,
-    allLocations: Location[],
-    map: L.Map,
-    config: AppConfig,
-): boolean {
-    const nodeRadius = config.nodeStyle.size + 5;
-    for (const otherLoc of allLocations) {
-        if (otherLoc.name === currentLocation.name) continue;
-        const point = map.latLngToContainerPoint([otherLoc.lat, otherLoc.lng]);
+function hasNodeOverlap(rect: LabelRect, ctx: LabelPlacementContext): boolean {
+    const nodeRadius = ctx.nodeSize + 5;
+    for (const loc of ctx.allLocations) {
+        const point = ctx.map.latLngToContainerPoint([loc.lat, loc.lng]);
         const nodeRect: LabelRect = {
             left: point.x - nodeRadius,
             top: point.y - nodeRadius,

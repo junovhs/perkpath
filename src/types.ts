@@ -6,17 +6,21 @@ export interface RouteType {
     lineWidth: number;
 }
 
+export interface LabelStyle {
+    fontSize: number;
+    bgColor: string;
+    textColor: string;
+}
+
+export interface NodeStyle {
+    size: number;
+    borderWidth: number;
+}
+
 export interface AppConfig {
     routeTypes: RouteType[];
-    labelStyle: {
-        fontSize: number;
-        bgColor: string;
-        textColor: string;
-    };
-    nodeStyle: {
-        size: number;
-        borderWidth: number;
-    };
+    labelStyle: LabelStyle;
+    nodeStyle: NodeStyle;
 }
 
 export interface Location {
@@ -46,4 +50,17 @@ export interface LabelRect {
     right: number;
     bottom: number;
     position: string;
+}
+
+export interface PlacedLabel {
+    location: Location;
+    rect: LabelRect;
+    position: string;
+}
+
+export interface LabelPlacementContext {
+    map: L.Map;
+    placedLabels: PlacedLabel[];
+    allLocations: Location[];
+    nodeSize: number;
 }

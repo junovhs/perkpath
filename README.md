@@ -1,4 +1,4 @@
-# RouteMap Generator
+# PerkPath by TravelPerks
 
 A tool to generate visual itinerary maps from text descriptions using AI.
 
@@ -25,7 +25,7 @@ A tool to generate visual itinerary maps from text descriptions using AI.
 -   **Frontend**: Vanilla TypeScript + Vite
 -   **Map**: Leaflet + CartoDB tiles
 -   **Geo**: Turf.js for bezier curves
--   **Styling**: CSS Variables (Cyberpunk/Dark theme)
+-   **Styling**: CSS Variables (Dark theme)
 
 ## Usage
 

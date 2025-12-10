@@ -1,0 +1,4 @@
+.slopchop_apply_backup
+context.txt
+package-lock.json
+node_modules

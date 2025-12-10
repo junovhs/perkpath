@@ -1,6 +1,12 @@
-import L from "leaflet";
-import * as turf from "@turf/turf";
 import html2canvas from "html2canvas";
+import L from "leaflet";
+import { createDirectionArrow, generateBezierCurve } from "./geo";
+import {
+    type PlacedLabel,
+    findBestLabelPosition,
+    getAnchorForPosition,
+    getLabelRect,
+} from "./layout";
 import type { AppConfig, Location, RouteType, Segment, TripData } from "./types";
 
 export class MapRenderer {
@@ -10,17 +16,7 @@ export class MapRenderer {
     private nodesLayer: L.LayerGroup;
     private labelsLayer: L.LayerGroup;
     private currentData: TripData | null = null;
-    private placedLabels: {
-        location: Location;
-        rect: {
-            left: number;
-            top: number;
-            right: number;
-            bottom: number;
-            position: string;
-        };
-        position: string;
-    }[] = [];
+    private placedLabels: PlacedLabel[] = [];
 
     constructor(
         containerId: string,
@@ -31,14 +27,11 @@ export class MapRenderer {
             attributionControl: true,
         }).setView([40, -95], 4);
 
-        L.tileLayer(
-            "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",
-            {
-                attribution: "&copy; OpenStreetMap &copy; CARTO",
-                subdomains: "abcd",
-                maxZoom: 19,
-            },
-        ).addTo(this.map);
+        L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", {
+            attribution: "&copy; OpenStreetMap &copy; CARTO",
+            subdomains: "abcd",
+            maxZoom: 19,
+        }).addTo(this.map);
 
         this.routesLayer = L.layerGroup().addTo(this.map);
         this.arrowsLayer = L.layerGroup().addTo(this.map);
@@ -66,9 +59,9 @@ export class MapRenderer {
             return 0;
         });
 
-        sortedLocations.forEach((loc) =>
-            this.drawLabelSmart(loc, this.currentData!.locations),
-        );
+        for (const loc of sortedLocations) {
+            this.drawLabelSmart(loc, this.currentData.locations);
+        }
     }
 
     updateConfig(config: AppConfig) {
@@ -90,14 +83,16 @@ export class MapRenderer {
         this.currentData = data;
 
         const locationMap: Record<string, Location> = {};
-        data.locations.forEach((loc) => {
+        for (const loc of data.locations) {
             locationMap[loc.name] = loc;
-        });
+        }
 
-        data.segments.forEach((segment) =>
-            this.drawSegment(segment, locationMap),
-        );
-        data.locations.forEach((loc) => this.drawNode(loc));
+        for (const segment of data.segments) {
+            this.drawSegment(segment, locationMap);
+        }
+        for (const loc of data.locations) {
+            this.drawNode(loc);
+        }
 
         const sortedLocations = [...data.locations].sort((a, b) => {
             if (a.isStart) return -1;
@@ -108,9 +103,9 @@ export class MapRenderer {
         });
 
         this.placedLabels = [];
-        sortedLocations.forEach((loc) =>
-            this.drawLabelSmart(loc, data.locations),
-        );
+        for (const loc of sortedLocations) {
+            this.drawLabelSmart(loc, data.locations);
+        }
 
         this.fitBounds(data.locations);
         this.updateLegend(data.segments);
@@ -124,17 +119,12 @@ export class MapRenderer {
         );
     }
 
-    private drawSegment(
-        segment: Segment,
-        locationMap: Record<string, Location>,
-    ) {
+    private drawSegment(segment: Segment, locationMap: Record<string, Location>) {
         const from = locationMap[segment.from];
         const to = locationMap[segment.to];
 
         if (!from || !to) {
-            console.warn(
-                `Could not find locations for segment: ${segment.from} -> ${segment.to}`,
-            );
+            console.warn(`Could not find locations for segment: ${segment.from} -> ${segment.to}`);
             return;
         }
 
@@ -143,7 +133,7 @@ export class MapRenderer {
         const isDashed = routeConfig?.lineStyle === "dashed";
         const weight = routeConfig?.lineWidth || 4;
 
-        const curvePoints = this.generateBezierCurve(from, to);
+        const curvePoints = generateBezierCurve(from, to);
 
         const polyline = L.polyline(curvePoints, {
             color: color,
@@ -158,75 +148,11 @@ export class MapRenderer {
         this.addDirectionArrows(curvePoints, color, weight);
     }
 
-    private generateBezierCurve(
-        from: Location,
-        to: Location,
-    ): [number, number][] {
-        const start = turf.point([from.lng, from.lat]);
-        const end = turf.point([to.lng, to.lat]);
-
-        const distance = turf.distance(start, end, { units: "kilometers" });
-        const bearing = turf.bearing(start, end);
-        const midPoint = turf.midpoint(start, end);
-
-        const offsetDistance = distance * 0.15;
-        const controlPoint = turf.destination(
-            midPoint,
-            offsetDistance,
-            bearing + 90,
-            { units: "kilometers" },
-        );
-
-        const line = turf.lineString([
-            [from.lng, from.lat],
-            controlPoint.geometry.coordinates,
-            [to.lng, to.lat],
-        ]);
-
-        const curved = turf.bezierSpline(line, {
-            resolution: 10000,
-            sharpness: 0.85,
-        });
-        return curved.geometry.coordinates.map((coord) => [
-            coord[1],
-            coord[0],
-        ]) as [number, number][];
-    }
-
-    private addDirectionArrows(
-        points: [number, number][],
-        color: string,
-        weight: number,
-    ) {
-        if (points.length < 2) return;
-
-        const totalPoints = points.length;
-        const arrowSize = Math.max(12, weight * 2.5);
-        const index = Math.floor(totalPoints * 0.5);
-
-        if (index > 0 && index < totalPoints - 1) {
-            const point = points[index];
-            const prevPoint = points[index - 3] || points[index - 1];
-            const nextPoint = points[index + 3] || points[index + 1];
-
-            const angle =
-                Math.atan2(
-                    nextPoint[0] - prevPoint[0],
-                    nextPoint[1] - prevPoint[1],
-                ) *
-                (180 / Math.PI);
-
-            const arrowIcon = L.divIcon({
-                className: "arrow-icon",
-                html: `<svg width="${arrowSize * 2}" height="${arrowSize * 2}" viewBox="0 0 24 24" style="transform: rotate(${angle}deg); filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3));">
-          <path d="M12 4 L20 16 L12 13 L4 16 Z" fill="${color}" stroke="white" stroke-width="1.5"/>
-        </svg>`,
-                iconSize: [arrowSize * 2, arrowSize * 2],
-                iconAnchor: [arrowSize, arrowSize],
-            });
-
-            L.marker(point, {
-                icon: arrowIcon,
+    private addDirectionArrows(points: [number, number][], color: string, weight: number) {
+        const arrow = createDirectionArrow(points, color, weight);
+        if (arrow) {
+            L.marker(arrow.point, {
+                icon: arrow.icon,
                 interactive: false,
             }).addTo(this.arrowsLayer);
         }
@@ -250,154 +176,31 @@ export class MapRenderer {
         marker.addTo(this.nodesLayer);
     }
 
-    private estimateLabelSize(text: string, fontSize: number) {
-        const charWidth = fontSize * 0.65;
-        const padding = 24;
-        const width = text.length * charWidth + padding;
-        const height = fontSize + 12;
-        return { width, height };
-    }
-
-    private latLngToPixel(lat: number, lng: number) {
-        const point = this.map.latLngToContainerPoint([lat, lng]);
-        return { x: point.x, y: point.y };
-    }
-
-    private rectsOverlap(
-        r1: { left: number; right: number; top: number; bottom: number },
-        r2: { left: number; right: number; top: number; bottom: number },
-        padding = 5,
-    ) {
-        return !(
-            r1.right + padding < r2.left - padding ||
-            r1.left - padding > r2.right + padding ||
-            r1.bottom + padding < r2.top - padding ||
-            r1.top - padding > r2.bottom + padding
-        );
-    }
-
-    private getLabelRect(
-        pixelPos: { x: number; y: number },
-        labelSize: { width: number; height: number },
-        position: string,
-    ) {
-        const offsets: Record<string, { x: number; y: number }> = {
-            right: { x: 15, y: -labelSize.height / 2 },
-            left: { x: -labelSize.width - 15, y: -labelSize.height / 2 },
-            top: { x: -labelSize.width / 2, y: -labelSize.height - 15 },
-            bottom: { x: -labelSize.width / 2, y: 15 },
-            "top-right": { x: 10, y: -labelSize.height - 10 },
-            "top-left": { x: -labelSize.width - 10, y: -labelSize.height - 10 },
-            "bottom-right": { x: 10, y: 10 },
-            "bottom-left": { x: -labelSize.width - 10, y: 10 },
-        };
-
-        const offset = offsets[position] || offsets["right"];
-
-        return {
-            left: pixelPos.x + offset.x,
-            top: pixelPos.y + offset.y,
-            right: pixelPos.x + offset.x + labelSize.width,
-            bottom: pixelPos.y + offset.y + labelSize.height,
-            position: position,
-        };
-    }
-
-    private findBestLabelPosition(
-        location: Location,
-        labelSize: { width: number; height: number },
-        allLocations: Location[],
-    ) {
-        const pixelPos = this.latLngToPixel(location.lat, location.lng);
-        const positions = [
-            "right",
-            "top-right",
-            "bottom-right",
-            "left",
-            "top-left",
-            "bottom-left",
-            "top",
-            "bottom",
-        ];
-
-        let bestPosition = "right";
-        let bestScore = -Infinity;
-
-        for (const pos of positions) {
-            const rect = this.getLabelRect(pixelPos, labelSize, pos);
-            let score = 0;
-            let hasOverlap = false;
-
-            for (const placed of this.placedLabels) {
-                if (this.rectsOverlap(rect, placed.rect)) {
-                    hasOverlap = true;
-                    score -= 100;
-                }
-            }
-
-            for (const otherLoc of allLocations) {
-                if (otherLoc.name === location.name) continue;
-                const otherPixel = this.latLngToPixel(
-                    otherLoc.lat,
-                    otherLoc.lng,
-                );
-                const nodeRadius = this.config.nodeStyle.size + 5;
-                const nodeRect = {
-                    left: otherPixel.x - nodeRadius,
-                    top: otherPixel.y - nodeRadius,
-                    right: otherPixel.x + nodeRadius,
-                    bottom: otherPixel.y + nodeRadius,
-                };
-                if (this.rectsOverlap(rect, nodeRect)) {
-                    score -= 50;
-                }
-            }
-
-            if (pos.includes("right")) score += 10;
-            if (pos.includes("top")) score += 5;
-
-            if (score > bestScore) {
-                bestScore = score;
-                bestPosition = pos;
-            }
-
-            if (!hasOverlap && score >= 0) {
-                bestPosition = pos;
-                break;
-            }
-        }
-
-        return bestPosition;
-    }
-
-    private getAnchorForPosition(
-        position: string,
-        labelSize: { width: number; height: number },
-    ): [number, number] {
-        const anchors: Record<string, [number, number]> = {
-            right: [-15, labelSize.height / 2],
-            left: [labelSize.width + 15, labelSize.height / 2],
-            top: [labelSize.width / 2, labelSize.height + 15],
-            bottom: [labelSize.width / 2, -15],
-            "top-right": [-10, labelSize.height + 10],
-            "top-left": [labelSize.width + 10, labelSize.height + 10],
-            "bottom-right": [-10, -10],
-            "bottom-left": [labelSize.width + 10, -10],
-        };
-        return anchors[position] || anchors["right"];
-    }
-
     private drawLabelSmart(location: Location, allLocations: Location[]) {
         const { fontSize, bgColor, textColor } = this.config.labelStyle;
-        const labelSize = this.estimateLabelSize(location.name, fontSize);
 
         const position =
             location.labelPosition ||
-            this.findBestLabelPosition(location, labelSize, allLocations);
-        const anchor = this.getAnchorForPosition(position, labelSize);
+            findBestLabelPosition(
+                location,
+                fontSize,
+                this.map,
+                this.placedLabels,
+                allLocations,
+                this.config,
+            );
 
-        const pixelPos = this.latLngToPixel(location.lat, location.lng);
-        const rect = this.getLabelRect(pixelPos, labelSize, position);
+        const anchor = getAnchorForPosition(position, location.name, fontSize);
+        const pixelPos = this.map.latLngToContainerPoint([location.lat, location.lng]);
+        const rect = getLabelRect(
+            pixelPos,
+            {
+                width: location.name.length * (fontSize * 0.65) + 24,
+                height: fontSize + 12,
+            },
+            position,
+        );
+
         this.placedLabels.push({ location, rect, position });
 
         const icon = L.divIcon({
@@ -418,9 +221,7 @@ export class MapRenderer {
 
     private fitBounds(locations: Location[]) {
         if (locations.length === 0) return;
-        const bounds = L.latLngBounds(
-            locations.map((loc) => [loc.lat, loc.lng]),
-        );
+        const bounds = L.latLngBounds(locations.map((loc) => [loc.lat, loc.lng]));
         this.map.fitBounds(bounds, { padding: [80, 80] });
     }
 
@@ -428,31 +229,30 @@ export class MapRenderer {
         const legendItems = document.getElementById("legendItems");
         if (!legendItems) return;
 
-        const usedTransports = new Set(
-            segments.map((s) => s.transport.toLowerCase()),
-        );
+        const usedTransports = new Set(segments.map((s) => s.transport.toLowerCase()));
         legendItems.innerHTML = "";
 
-        this.config.routeTypes
-            .filter((rt) => usedTransports.has(rt.id.toLowerCase()))
-            .forEach((rt) => {
-                const item = document.createElement("div");
-                item.className = "legend-item";
+        const typesToRender = this.config.routeTypes.filter((rt) =>
+            usedTransports.has(rt.id.toLowerCase()),
+        );
 
-                const line = document.createElement("div");
-                line.className = `legend-line ${rt.lineStyle === "dashed" ? "dashed" : ""}`;
-                line.style.backgroundColor =
-                    rt.lineStyle === "dashed" ? "transparent" : rt.color;
-                line.style.color = rt.color;
-                if (rt.lineStyle !== "dashed") line.style.background = rt.color;
+        for (const rt of typesToRender) {
+            const item = document.createElement("div");
+            item.className = "legend-item";
 
-                const label = document.createElement("span");
-                label.textContent = rt.name;
+            const line = document.createElement("div");
+            line.className = `legend-line ${rt.lineStyle === "dashed" ? "dashed" : ""}`;
+            line.style.backgroundColor = rt.lineStyle === "dashed" ? "transparent" : rt.color;
+            line.style.color = rt.color;
+            if (rt.lineStyle !== "dashed") line.style.background = rt.color;
 
-                item.appendChild(line);
-                item.appendChild(label);
-                legendItems.appendChild(item);
-            });
+            const label = document.createElement("span");
+            label.textContent = rt.name;
+
+            item.appendChild(line);
+            item.appendChild(label);
+            legendItems.appendChild(item);
+        }
     }
 
     async exportImage(options: {
@@ -460,11 +260,7 @@ export class MapRenderer {
         includeRoutes: boolean;
         includeLabels: boolean;
     }) {
-        const {
-            includeBase = true,
-            includeRoutes = true,
-            includeLabels = true,
-        } = options;
+        const { includeBase = true, includeRoutes = true, includeLabels = true } = options;
 
         const routesVisible = this.map.hasLayer(this.routesLayer);
         const nodesVisible = this.map.hasLayer(this.nodesLayer);
@@ -480,7 +276,9 @@ export class MapRenderer {
             this.map.removeLayer(this.labelsLayer);
         }
 
-        const mapContainer = document.getElementById("map")!;
+        const mapContainer = document.getElementById("map");
+        if (!mapContainer) return "";
+
         const canvas = await html2canvas(mapContainer, {
             useCORS: true,
             allowTaint: true,
@@ -494,4 +292,4 @@ export class MapRenderer {
 
         return canvas.toDataURL("image/png");
     }
-}
+}

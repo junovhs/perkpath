@@ -113,4 +113,4 @@ export const ALASKA_EXAMPLE: TripData = {
         { from: "Sitka", to: "Ketchikan", transport: "cruise" },
         { from: "Ketchikan", to: "Vancouver", transport: "cruise" },
     ],
-};
+};

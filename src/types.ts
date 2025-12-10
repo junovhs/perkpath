@@ -38,4 +38,12 @@ export interface TripData {
     title: string;
     locations: Location[];
     segments: Segment[];
-}
+}
+
+export interface LabelRect {
+    left: number;
+    top: number;
+    right: number;
+    bottom: number;
+    position: string;
+}

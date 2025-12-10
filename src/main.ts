@@ -1,7 +1,8 @@
 import "./style.css";
-import { DEFAULT_CONFIG, ALASKA_EXAMPLE } from "./config";
-import type { AppConfig, RouteType } from "./types";
+import { ALASKA_EXAMPLE, DEFAULT_CONFIG } from "./config";
 import { MapRenderer } from "./map";
+import { generatePromptString } from "./prompt";
+import type { AppConfig, RouteType } from "./types";
 
 class App {
     private config: AppConfig;
@@ -28,40 +29,33 @@ class App {
     }
 
     private saveConfig() {
-        localStorage.setItem(
-            "itinerary-map-config",
-            JSON.stringify(this.config),
-        );
+        localStorage.setItem("itinerary-map-config", JSON.stringify(this.config));
     }
 
     private initializeUI() {
-        document.querySelectorAll(".tab").forEach((tab) => {
-            tab.addEventListener("click", () =>
-                this.switchTab(tab.getAttribute("data-tab")!),
-            );
-        });
+        for (const tab of document.querySelectorAll(".tab")) {
+            tab.addEventListener("click", () => {
+                const tabId = tab.getAttribute("data-tab");
+                if (tabId) this.switchTab(tabId);
+            });
+        }
 
         document
             .getElementById("generatePrompt")
             ?.addEventListener("click", () => this.generatePrompt());
-        document
-            .getElementById("copyPrompt")
-            ?.addEventListener("click", () => this.copyPrompt());
-        document
-            .getElementById("renderMap")
-            ?.addEventListener("click", () => this.renderMap());
-        document
-            .getElementById("loadExample")
-            ?.addEventListener("click", () => this.loadExample());
+        document.getElementById("copyPrompt")?.addEventListener("click", () => this.copyPrompt());
+        document.getElementById("renderMap")?.addEventListener("click", () => this.renderMap());
+        document.getElementById("loadExample")?.addEventListener("click", () => this.loadExample());
         document
             .getElementById("addRouteType")
             ?.addEventListener("click", () => this.addRouteType());
 
-        document.querySelectorAll(".export-btn").forEach((btn) => {
-            btn.addEventListener("click", () =>
-                this.exportMap(btn.getAttribute("data-export")!),
-            );
-        });
+        for (const btn of document.querySelectorAll(".export-btn")) {
+            btn.addEventListener("click", () => {
+                const exportType = btn.getAttribute("data-export");
+                if (exportType) this.exportMap(exportType);
+            });
+        }
 
         this.setupConfigListeners();
     }
@@ -73,10 +67,13 @@ class App {
         };
 
         const bind = (id: string, path: string[], isInt = false) => {
-            document.getElementById(id)?.addEventListener("change", (e) => {
+            const el = document.getElementById(id);
+            if (!el) return;
+
+            el.addEventListener("change", (e) => {
                 const val = (e.target as HTMLInputElement).value;
                 // @ts-ignore
-                this.config[path[0]][path[1]] = isInt ? parseInt(val) : val;
+                this.config[path[0]][path[1]] = isInt ? Number.parseInt(val) : val;
                 update();
             });
         };
@@ -87,107 +84,51 @@ class App {
         bind("nodeSize", ["nodeStyle", "size"], true);
         bind("nodeBorderWidth", ["nodeStyle", "borderWidth"], true);
 
-        (document.getElementById("labelFontSize") as HTMLInputElement).value =
-            this.config.labelStyle.fontSize.toString();
-        (document.getElementById("labelBgColor") as HTMLInputElement).value =
-            this.config.labelStyle.bgColor;
-        (document.getElementById("labelTextColor") as HTMLInputElement).value =
-            this.config.labelStyle.textColor;
-        (document.getElementById("nodeSize") as HTMLInputElement).value =
-            this.config.nodeStyle.size.toString();
-        (document.getElementById("nodeBorderWidth") as HTMLInputElement).value =
-            this.config.nodeStyle.borderWidth.toString();
+        this.setInputValue("labelFontSize", this.config.labelStyle.fontSize.toString());
+        this.setInputValue("labelBgColor", this.config.labelStyle.bgColor);
+        this.setInputValue("labelTextColor", this.config.labelStyle.textColor);
+        this.setInputValue("nodeSize", this.config.nodeStyle.size.toString());
+        this.setInputValue("nodeBorderWidth", this.config.nodeStyle.borderWidth.toString());
+    }
+
+    private setInputValue(id: string, value: string) {
+        const el = document.getElementById(id) as HTMLInputElement | null;
+        if (el) el.value = value;
     }
 
     private switchTab(tabId: string) {
-        document
-            .querySelectorAll(".tab")
-            .forEach((t) => t.classList.remove("active"));
-        document
-            .querySelectorAll(".tab-content")
-            .forEach((c) => c.classList.remove("active"));
+        for (const t of document.querySelectorAll(".tab")) {
+            t.classList.remove("active");
+        }
+        for (const c of document.querySelectorAll(".tab-content")) {
+            c.classList.remove("active");
+        }
 
-        document
-            .querySelector(`.tab[data-tab="${tabId}"]`)
-            ?.classList.add("active");
-        document
-            .querySelector(`.tab-content[data-tab="${tabId}"]`)
-            ?.classList.add("active");
+        document.querySelector(`.tab[data-tab="${tabId}"]`)?.classList.add("active");
+        document.querySelector(`.tab-content[data-tab="${tabId}"]`)?.classList.add("active");
     }
 
     private generatePrompt() {
-        const input = (
-            document.getElementById("itineraryInput") as HTMLTextAreaElement
-        ).value.trim();
+        const inputEl = document.getElementById("itineraryInput") as HTMLTextAreaElement | null;
+        if (!inputEl) return;
+
+        const input = inputEl.value.trim();
 
         if (!input) {
             this.showToast("Please enter itinerary text first", "error");
             return;
         }
 
-        this.generatedPrompt = this.buildPromptString(
-            input,
-            this.config.routeTypes,
-        );
+        this.generatedPrompt = generatePromptString(input, this.config.routeTypes);
 
-        document.getElementById("promptOutput")!.textContent =
-            this.generatedPrompt;
-        (
-            document.getElementById("copyPrompt") as HTMLButtonElement
-        ).disabled = false;
+        const outputEl = document.getElementById("promptOutput");
+        if (outputEl) outputEl.textContent = this.generatedPrompt;
+
+        const copyBtn = document.getElementById("copyPrompt") as HTMLButtonElement | null;
+        if (copyBtn) copyBtn.disabled = false;
 
         this.switchTab("prompt");
         this.showToast("Prompt generated! Copy and paste to AI.", "success");
-    }
-
-    private buildPromptString(
-        itineraryText: string,
-        routeTypes: RouteType[],
-    ): string {
-        const transportTypes = routeTypes
-            .map((rt) => `"${rt.id}"`)
-            .join(" | ");
-
-        return `You are a travel itinerary parser. Parse the itinerary and return ONLY valid JSON.
-
-TRANSPORT TYPES: ${transportTypes}
-
-PARSING RULES:
- Extract all locations (cities, parks, airports, landmarks)
- Get accurate lat/lng coordinates for each
- Determine transport mode from context:
-  - "fly/flight"  fly
-  - "drive/motor/bus/coach"  drive
-  - "rail/train"  rail
-  - "cruise/sail/boat/ferry"  cruise
-  - Default to "drive" if unclear
- First location: isStart: true
- Last location: isEnd: true
- OPTIONAL: If locations are geographically close together, add "labelPosition" to help avoid overlaps. Options: "right", "left", "top", "bottom", "top-right", "top-left", "bottom-right", "bottom-left"
-
-EXAMPLE INPUT:
-Part 1: Alaska
-Start in Anchorage
-Take rail to Denali
-Drive to Fairbanks
-
-EXAMPLE OUTPUT:
-{
-  "title": "Alaska Adventure",
-  "locations": [
-    { "name": "Anchorage", "lat": 61.2181, "lng": -149.9003, "isStart": true },
-    { "name": "Denali National Park", "lat": 63.1148, "lng": -151.1926, "labelPosition": "left" },
-    { "name": "Fairbanks", "lat": 64.8378, "lng": -147.7164, "isEnd": true }
-  ],
-  "segments": [
-    { "from": "Anchorage", "to": "Denali National Park", "transport": "rail" },
-    { "from": "Denali National Park", "to": "Fairbanks", "transport": "drive" }
-  ]
-}
-
-NOW PARSE THIS ITINERARY (return ONLY JSON, no markdown code blocks):
-
-${itineraryText}`;
     }
 
     private async copyPrompt() {
@@ -196,15 +137,16 @@ ${itineraryText}`;
         try {
             await navigator.clipboard.writeText(this.generatedPrompt);
             this.showToast("Copied to clipboard!", "success");
-        } catch (err) {
+        } catch {
             this.showToast("Failed to copy", "error");
         }
     }
 
     private renderMap() {
-        const jsonInput = (
-            document.getElementById("jsonInput") as HTMLTextAreaElement
-        ).value.trim();
+        const jsonInputEl = document.getElementById("jsonInput") as HTMLTextAreaElement | null;
+        if (!jsonInputEl) return;
+
+        const jsonInput = jsonInputEl.value.trim();
 
         if (!jsonInput) {
             this.showToast("Please paste JSON data first", "error");
@@ -223,30 +165,30 @@ ${itineraryText}`;
             const data = JSON.parse(cleanJson);
 
             if (!data.locations || !data.segments) {
-                throw new Error(
-                    "Invalid JSON structure: missing locations or segments",
-                );
+                throw new Error("Invalid JSON structure: missing locations or segments");
             }
 
             this.mapRenderer.render(data);
-            this.showToast(
-                `Rendered ${data.locations.length} locations!`,
-                "success",
-            );
-        } catch (err: any) {
+            this.showToast(`Rendered ${data.locations.length} locations!`, "success");
+        } catch (err: unknown) {
+            const message = err instanceof Error ? err.message : String(err);
             console.error("Parse error:", err);
-            this.showToast(`JSON parse error: ${err.message}`, "error");
+            this.showToast(`JSON parse error: ${message}`, "error");
         }
     }
 
     private loadExample() {
-        (document.getElementById("jsonInput") as HTMLTextAreaElement).value =
-            JSON.stringify(ALASKA_EXAMPLE, null, 2);
-        this.renderMap();
+        const jsonInputEl = document.getElementById("jsonInput") as HTMLTextAreaElement | null;
+        if (jsonInputEl) {
+            jsonInputEl.value = JSON.stringify(ALASKA_EXAMPLE, null, 2);
+            this.renderMap();
+        }
     }
 
     private renderRouteTypes() {
-        const container = document.getElementById("routeTypes")!;
+        const container = document.getElementById("routeTypes");
+        if (!container) return;
+
         container.innerHTML = "";
 
         this.config.routeTypes.forEach((rt, index) => {
@@ -286,28 +228,27 @@ ${itineraryText}`;
       </div>
     `;
 
-        item.querySelectorAll("input, select").forEach((input) => {
+        for (const input of item.querySelectorAll("input, select")) {
             input.addEventListener("change", (e) => {
-                const field = input.getAttribute("data-field")!;
-                let value: any = (e.target as HTMLInputElement).value;
-                if (field === "lineWidth") value = parseInt(value);
+                const field = input.getAttribute("data-field");
+                if (!field) return;
+
+                let value: string | number = (e.target as HTMLInputElement).value;
+                if (field === "lineWidth") value = Number.parseInt(value);
 
                 // @ts-ignore
                 this.config.routeTypes[index][field] = value;
                 this.saveConfig();
                 this.mapRenderer.updateConfig(this.config);
             });
-        });
+        }
 
-        item.querySelector(".route-type-remove")?.addEventListener(
-            "click",
-            () => {
-                this.config.routeTypes.splice(index, 1);
-                this.saveConfig();
-                this.renderRouteTypes();
-                this.mapRenderer.updateConfig(this.config);
-            },
-        );
+        item.querySelector(".route-type-remove")?.addEventListener("click", () => {
+            this.config.routeTypes.splice(index, 1);
+            this.saveConfig();
+            this.renderRouteTypes();
+            this.mapRenderer.updateConfig(this.config);
+        });
 
         return item;
     }
@@ -330,15 +271,13 @@ ${itineraryText}`;
         this.showToast("Exporting...", "success");
 
         try {
-            let dataUrl;
-
             const opts = {
                 includeBase: type === "full" || type === "base",
                 includeRoutes: type === "full" || type === "routes",
                 includeLabels: type === "full" || type === "labels",
             };
 
-            dataUrl = await this.mapRenderer.exportImage(opts);
+            const dataUrl = await this.mapRenderer.exportImage(opts);
 
             const link = document.createElement("a");
             link.download = `map-${type}-${Date.now()}.png`;
@@ -353,7 +292,9 @@ ${itineraryText}`;
     }
 
     private showToast(message: string, type: "success" | "error") {
-        const toast = document.getElementById("toast")!;
+        const toast = document.getElementById("toast");
+        if (!toast) return;
+
         toast.textContent = message;
         toast.className = `toast show ${type}`;
 
@@ -361,4 +302,4 @@ ${itineraryText}`;
     }
 }
 
-document.addEventListener("DOMContentLoaded", () => new App());
+document.addEventListener("DOMContentLoaded", () => new App());

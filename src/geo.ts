@@ -31,30 +31,33 @@ export function generateBezierCurve(from: Location, to: Location): [number, numb
 export function createDirectionArrow(
     points: [number, number][],
     color: string,
-    weight: number,
+    arrowSize: number,
 ): { point: [number, number]; icon: L.DivIcon } | null {
     if (points.length < 2) return null;
 
-    const totalPoints = points.length;
-    const arrowSize = Math.max(12, weight * 2.5);
-    const index = Math.floor(totalPoints * 0.5);
-
-    if (index <= 0 || index >= totalPoints - 1) return null;
-
+    const index = Math.floor(points.length * 0.5);
     const point = points[index];
-    const prevPoint = points[index - 3] || points[index - 1];
-    const nextPoint = points[index + 3] || points[index + 1];
 
-    const angle =
-        Math.atan2(nextPoint[0] - prevPoint[0], nextPoint[1] - prevPoint[1]) * (180 / Math.PI);
+    // Use Turf to calculate geographic bearing between surrounding points
+    // points are [lat, lng], turf needs [lng, lat]
+    const p1 = points[Math.max(0, index - 5)];
+    const p2 = points[Math.min(points.length - 1, index + 5)];
+
+    if (!p1 || !p2) return null;
+
+    const start = turf.point([p1[1], p1[0]]);
+    const end = turf.point([p2[1], p2[0]]);
+
+    // Bearing is decimal degrees, clockwise from North (0)
+    const angle = turf.bearing(start, end);
 
     const icon = L.divIcon({
         className: "arrow-icon",
-        html: `<svg width="${arrowSize * 2}" height="${arrowSize * 2}" viewBox="0 0 24 24" style="transform: rotate(${angle}deg); filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3));">
-      <path d="M12 4 L20 16 L12 13 L4 16 Z" fill="${color}" stroke="white" stroke-width="1.5"/>
-    </svg>`,
-        iconSize: [arrowSize * 2, arrowSize * 2],
-        iconAnchor: [arrowSize, arrowSize],
+        html: `<svg width="${arrowSize}" height="${arrowSize}" viewBox="0 0 24 24" style="transform: rotate(${angle}deg); filter: drop-shadow(0 2px 3px rgba(0,0,0,0.4)); display: block;">
+            <path d="M12 2 L22 18 L12 14 L2 18 Z" fill="${color}" stroke="white" stroke-width="2"/>
+        </svg>`,
+        iconSize: [arrowSize, arrowSize],
+        iconAnchor: [arrowSize / 2, arrowSize / 2],
     });
 
     return { point, icon };

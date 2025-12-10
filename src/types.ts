@@ -15,12 +15,19 @@ export interface LabelStyle {
 export interface NodeStyle {
     size: number;
     borderWidth: number;
+    arrowSize: number;
+}
+
+export interface LegendStyle {
+    scale: number;
+    position: { x: number; y: number };
 }
 
 export interface AppConfig {
     routeTypes: RouteType[];
     labelStyle: LabelStyle;
     nodeStyle: NodeStyle;
+    legendStyle: LegendStyle;
 }
 
 export interface Location {
@@ -56,6 +63,7 @@ export interface PlacedLabel {
     location: Location;
     rect: LabelRect;
     position: string;
+    marker?: L.Marker;
 }
 
 export interface LabelPlacementContext {
@@ -63,4 +71,12 @@ export interface LabelPlacementContext {
     placedLabels: PlacedLabel[];
     allLocations: Location[];
     nodeSize: number;
+}
+
+export interface ViewOptions {
+    showBase: boolean;
+    showRoutes: boolean;
+    showNodes: boolean;
+    showLabels: boolean;
+    showArrows: boolean;
 }

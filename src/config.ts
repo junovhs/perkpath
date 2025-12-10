@@ -38,7 +38,15 @@ export const DEFAULT_CONFIG: AppConfig = {
         bgColor: "#ffffff",
         textColor: "#1a1d23",
     },
-    nodeStyle: { size: 12, borderWidth: 3 },
+    nodeStyle: {
+        size: 12,
+        borderWidth: 3,
+        arrowSize: 20,
+    },
+    legendStyle: {
+        scale: 1,
+        position: { x: 30, y: 30 },
+    },
 };
 
 export const ALASKA_EXAMPLE: TripData = {
@@ -51,56 +59,15 @@ export const ALASKA_EXAMPLE: TripData = {
             isStart: true,
             labelPosition: "left",
         },
-        {
-            name: "Talkeetna",
-            lat: 62.3209,
-            lng: -150.1066,
-            labelPosition: "top",
-        },
-        {
-            name: "Anchorage",
-            lat: 61.2181,
-            lng: -149.9003,
-            labelPosition: "left",
-        },
-        {
-            name: "Girdwood",
-            lat: 60.9426,
-            lng: -149.1663,
-            labelPosition: "top-right",
-        },
-        {
-            name: "Seward",
-            lat: 60.1042,
-            lng: -149.4422,
-            labelPosition: "left",
-        },
-        {
-            name: "Hubbard Glacier",
-            lat: 60.0192,
-            lng: -139.4716,
-            labelPosition: "top-right",
-        },
-        {
-            name: "Skagway",
-            lat: 59.4583,
-            lng: -135.3139,
-            labelPosition: "right",
-        },
+        { name: "Talkeetna", lat: 62.3209, lng: -150.1066, labelPosition: "top" },
+        { name: "Anchorage", lat: 61.2181, lng: -149.9003, labelPosition: "left" },
+        { name: "Girdwood", lat: 60.9426, lng: -149.1663, labelPosition: "top-right" },
+        { name: "Seward", lat: 60.1042, lng: -149.4422, labelPosition: "left" },
+        { name: "Hubbard Glacier", lat: 60.0192, lng: -139.4716, labelPosition: "top-right" },
+        { name: "Skagway", lat: 59.4583, lng: -135.3139, labelPosition: "right" },
         { name: "Sitka", lat: 57.0531, lng: -135.33, labelPosition: "right" },
-        {
-            name: "Ketchikan",
-            lat: 55.3422,
-            lng: -131.6461,
-            labelPosition: "right",
-        },
-        {
-            name: "Vancouver",
-            lat: 49.2827,
-            lng: -123.1207,
-            isEnd: true,
-            labelPosition: "bottom",
-        },
+        { name: "Ketchikan", lat: 55.3422, lng: -131.6461, labelPosition: "right" },
+        { name: "Vancouver", lat: 49.2827, lng: -123.1207, isEnd: true, labelPosition: "bottom" },
     ],
     segments: [
         { from: "Denali Ntl Park", to: "Talkeetna", transport: "rail" },

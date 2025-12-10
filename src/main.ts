@@ -1,18 +1,22 @@
 import "./style.css";
 import { ALASKA_EXAMPLE, DEFAULT_CONFIG } from "./config";
+import { ConfigUI } from "./config-ui";
 import { MapRenderer } from "./map";
 import { generatePromptString } from "./prompt";
 import type { AppConfig, RouteType } from "./types";
-import { createRouteTypeElement, setInputValue, showToast, switchTab } from "./ui-helpers";
+import { createRouteTypeElement, showToast, switchTab } from "./ui-helpers";
 
 class App {
     private config: AppConfig;
     private mapRenderer: MapRenderer;
+    private configUI: ConfigUI;
     private generatedPrompt = "";
 
     constructor() {
         this.config = this.loadConfig();
         this.mapRenderer = new MapRenderer("map", this.config);
+        this.configUI = new ConfigUI(this.config, this.mapRenderer, () => this.saveConfig());
+
         this.initializeUI();
         this.renderRouteTypes();
     }
@@ -36,7 +40,7 @@ class App {
     private initializeUI(): void {
         this.bindTabs();
         this.bindButtons();
-        this.bindConfigInputs();
+        this.configUI.bindAll();
     }
 
     private bindTabs(): void {
@@ -71,40 +75,6 @@ class App {
                 if (exportType) this.exportMap(exportType);
             });
         }
-    }
-
-    private bindConfigInputs(): void {
-        const update = () => {
-            this.saveConfig();
-            this.mapRenderer.updateConfig(this.config);
-        };
-
-        this.bindInput("labelFontSize", "labelStyle", "fontSize", true, update);
-        this.bindInput("labelBgColor", "labelStyle", "bgColor", false, update);
-        this.bindInput("labelTextColor", "labelStyle", "textColor", false, update);
-        this.bindInput("nodeSize", "nodeStyle", "size", true, update);
-        this.bindInput("nodeBorderWidth", "nodeStyle", "borderWidth", true, update);
-
-        setInputValue("labelFontSize", this.config.labelStyle.fontSize.toString());
-        setInputValue("labelBgColor", this.config.labelStyle.bgColor);
-        setInputValue("labelTextColor", this.config.labelStyle.textColor);
-        setInputValue("nodeSize", this.config.nodeStyle.size.toString());
-        setInputValue("nodeBorderWidth", this.config.nodeStyle.borderWidth.toString());
-    }
-
-    private bindInput(
-        id: string,
-        group: string,
-        key: string,
-        isInt: boolean,
-        cb: () => void,
-    ): void {
-        document.getElementById(id)?.addEventListener("change", (e) => {
-            const val = (e.target as HTMLInputElement).value;
-            const cfg = this.config as Record<string, Record<string, unknown>>;
-            cfg[group][key] = isInt ? Number.parseInt(val) : val;
-            cb();
-        });
     }
 
     private generatePrompt(): void {
@@ -221,7 +191,7 @@ class App {
     }
 
     private async exportMap(type: string): Promise<void> {
-        showToast("Exporting...", "success");
+        showToast("Exporting High-Res...", "success");
 
         try {
             const opts = {
@@ -233,7 +203,7 @@ class App {
             const dataUrl = await this.mapRenderer.exportImage(opts);
 
             const link = document.createElement("a");
-            link.download = `map-${type}-${Date.now()}.png`;
+            link.download = `perkpath-${type}-${Date.now()}.png`;
             link.href = dataUrl;
             link.click();
 

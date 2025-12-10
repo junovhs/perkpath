@@ -1,129 +1,176 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>PerkPath by TravelPerks</title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
-      rel="stylesheet"
-    />
-  </head>
-  <body>
-    <div class="app">
-      <aside class="sidebar">
-        <header class="sidebar-header">
-          <h1>Perk<span class="accent">Path</span></h1>
-          <p class="tagline">Itinerary &rarr; Prompt &rarr; JSON &rarr; Map</p>
-        </header>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>PerkPath by TravelPerks</title>
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+            rel="stylesheet"
+        />
+    </head>
+    <body>
+        <div class="app">
+            <aside class="sidebar">
+                <header class="sidebar-header">
+                    <h1>Perk<span class="accent">Path</span></h1>
+                    <p class="tagline">Itinerary &rarr; Prompt &rarr; JSON &rarr; Map</p>
+                </header>
 
-        <nav class="tabs">
-          <button class="tab active" data-tab="input">1. Input</button>
-          <button class="tab" data-tab="prompt">2. Prompt</button>
-          <button class="tab" data-tab="render">3. Render</button>
-          <button class="tab" data-tab="config">Config</button>
-        </nav>
+                <nav class="tabs">
+                    <button class="tab active" data-tab="input">1. Input</button>
+                    <button class="tab" data-tab="prompt">2. Prompt</button>
+                    <button class="tab" data-tab="render">3. Render</button>
+                    <button class="tab" data-tab="config">Config</button>
+                </nav>
 
-        <section class="tab-content active" data-tab="input">
-          <div class="panel">
-            <h2>Paste Your Itinerary</h2>
-            <textarea
-              id="itineraryInput"
-              placeholder="Part 1: South Africa, Victoria Falls, & Nairobi..."
-            ></textarea>
-            <button id="generatePrompt" class="primary-btn">Generate AI Prompt &rarr;</button>
-          </div>
-        </section>
+                <section class="tab-content active" data-tab="input">
+                    <div class="panel">
+                        <h2>Paste Your Itinerary</h2>
+                        <textarea
+                            id="itineraryInput"
+                            placeholder="Part 1: South Africa, Victoria Falls, & Nairobi..."
+                        ></textarea>
+                        <button id="generatePrompt" class="primary-btn">
+                            Generate AI Prompt &rarr;
+                        </button>
+                    </div>
+                </section>
 
-        <section class="tab-content" data-tab="prompt">
-          <div class="panel">
-            <h2>Copy This Prompt to AI</h2>
-            <div class="prompt-output" id="promptOutput">
-              <span class="placeholder">Enter itinerary text first...</span>
-            </div>
-            <button id="copyPrompt" class="primary-btn" disabled>&#128203; Copy to Clipboard</button>
-            <p class="hint">
-              Paste this to Claude, ChatGPT, etc. Then paste the JSON response in the Render tab.
-            </p>
-          </div>
-        </section>
+                <section class="tab-content" data-tab="prompt">
+                    <div class="panel">
+                        <h2>Copy This Prompt to AI</h2>
+                        <div class="prompt-output" id="promptOutput">
+                            <span class="placeholder">Enter itinerary text first...</span>
+                        </div>
+                        <button id="copyPrompt" class="primary-btn" disabled>
+                            &#128203; Copy to Clipboard
+                        </button>
+                        <p class="hint">
+                            Paste this to Claude, ChatGPT, etc. Then paste the JSON response in the
+                            Render tab.
+                        </p>
+                    </div>
+                </section>
 
-        <section class="tab-content" data-tab="render">
-          <div class="panel">
-            <h2>Paste AI Response (JSON)</h2>
-            <textarea
-              id="jsonInput"
-              placeholder='{ "title": "My Trip", "locations": [...], "segments": [...] }'
-            ></textarea>
-            <button id="renderMap" class="primary-btn">&#128506; Render Map</button>
-          </div>
+                <section class="tab-content" data-tab="render">
+                    <div class="panel">
+                        <h2>View Options</h2>
+                        <div class="config-row">
+                            <label><input type="checkbox" id="showBase" checked> Map Base</label>
+                            <label><input type="checkbox" id="showLabels" checked> Labels</label>
+                        </div>
+                        <div class="config-row">
+                            <label><input type="checkbox" id="showRoutes" checked> Routes</label>
+                            <label><input type="checkbox" id="showNodes" checked> Nodes</label>
+                        </div>
+                         <div class="config-row">
+                            <label><input type="checkbox" id="showArrows" checked> Arrows</label>
+                        </div>
+                    </div>
 
-          <div class="panel">
-            <h2>Or Load Example</h2>
-            <button id="loadExample" class="secondary-btn">Load Alaska Example</button>
-          </div>
+                    <div class="panel">
+                        <h2>Paste AI Response (JSON)</h2>
+                        <textarea
+                            id="jsonInput"
+                            placeholder='{ "title": "My Trip", "locations": [...], "segments": [...] }'
+                        ></textarea>
+                        <button id="renderMap" class="primary-btn">&#128506; Render Map</button>
+                    </div>
 
-          <div class="panel">
-            <h2>Export Layers</h2>
-            <div class="export-buttons">
-              <button class="export-btn" data-export="full">Full Map</button>
-              <button class="export-btn" data-export="base">Base Only</button>
-              <button class="export-btn" data-export="labels">Labels Only</button>
-              <button class="export-btn" data-export="routes">Routes Only</button>
-            </div>
-          </div>
-        </section>
+                    <div class="panel">
+                        <h2>Or Load Example</h2>
+                        <button id="loadExample" class="secondary-btn">Load Alaska Example</button>
+                    </div>
 
-        <section class="tab-content" data-tab="config">
-          <div class="panel">
-            <h2>Route Types</h2>
-            <p class="hint">Configure how different transport modes appear on the map.</p>
-            <div id="routeTypes" class="route-types"></div>
-            <button id="addRouteType" class="secondary-btn">+ Add Route Type</button>
-          </div>
+                    <div class="panel">
+                        <h2>Export Layers (High Res)</h2>
+                        <div class="export-buttons">
+                            <button class="export-btn" data-export="full">Full Map</button>
+                            <button class="export-btn" data-export="base">Base Only</button>
+                            <button class="export-btn" data-export="labels">Labels Only</button>
+                            <button class="export-btn" data-export="routes">Routes Only</button>
+                        </div>
+                    </div>
+                </section>
 
-          <div class="panel">
-            <h2>Label Style</h2>
-            <div class="config-row">
-              <label>Font Size</label>
-              <input type="number" id="labelFontSize" value="14" min="8" max="24" />
-            </div>
-            <div class="config-row">
-              <label>Background</label>
-              <input type="color" id="labelBgColor" value="#ffffff" />
-            </div>
-            <div class="config-row">
-              <label>Text Color</label>
-              <input type="color" id="labelTextColor" value="#1a1d23" />
-            </div>
-          </div>
+                <section class="tab-content" data-tab="config">
+                    <div class="panel">
+                        <h2>Route Types</h2>
+                        <p class="hint">Configure how different transport modes appear.</p>
+                        <div id="routeTypes" class="route-types"></div>
+                        <button id="addRouteType" class="secondary-btn">+ Add Route Type</button>
+                    </div>
 
-          <div class="panel">
-            <h2>Node Style</h2>
-            <div class="config-row">
-              <label>Size</label>
-              <input type="number" id="nodeSize" value="12" min="6" max="24" />
-            </div>
-            <div class="config-row">
-              <label>Border Width</label>
-              <input type="number" id="nodeBorderWidth" value="3" min="1" max="8" />
-            </div>
-          </div>
-        </section>
-      </aside>
+                    <div class="panel">
+                        <h2>Label Style</h2>
+                        <div class="config-row full-width">
+                            <label>Font Size: <span id="labelFontSizeValue">14px</span></label>
+                            <input
+                                type="range"
+                                id="labelFontSize"
+                                value="14"
+                                min="8"
+                                max="32"
+                                step="1"
+                            />
+                        </div>
+                        <div class="config-row">
+                            <label>Background</label>
+                            <input type="color" id="labelBgColor" value="#ffffff" />
+                        </div>
+                        <div class="config-row">
+                            <label>Text Color</label>
+                            <input type="color" id="labelTextColor" value="#1a1d23" />
+                        </div>
+                    </div>
 
-      <main class="map-container">
-        <div id="map"></div>
-        <div id="legend" class="legend">
-          <h3>Legend</h3>
-          <div id="legendItems"></div>
+                    <div class="panel">
+                        <h2>Node Style</h2>
+                        <div class="config-row">
+                            <label>Size</label>
+                            <input type="number" id="nodeSize" value="12" min="6" max="24" />
+                        </div>
+                        <div class="config-row">
+                            <label>Border Width</label>
+                            <input type="number" id="nodeBorderWidth" value="3" min="1" max="8" />
+                        </div>
+                        <div class="config-row">
+                            <label>Arrow Size</label>
+                            <input type="number" id="arrowSize" value="20" min="10" max="50" />
+                        </div>
+                    </div>
+
+                    <div class="panel">
+                        <h2>Legend</h2>
+                        <div class="config-row full-width">
+                            <label>Scale: <span id="legendScaleValue">1.0</span>x</label>
+                            <input
+                                type="range"
+                                id="legendScale"
+                                value="1"
+                                min="0.5"
+                                max="2"
+                                step="0.1"
+                            />
+                        </div>
+                        <p class="hint">Drag the legend to reposition it.</p>
+                    </div>
+                </section>
+            </aside>
+
+            <main class="map-container">
+                <div id="map"></div>
+                <div id="legend" class="legend">
+                    <h3>Legend</h3>
+                    <div id="legendItems"></div>
+                </div>
+                <div id="toast" class="toast"></div>
+            </main>
         </div>
-        <div id="toast" class="toast"></div>
-      </main>
-    </div>
-    <script type="module" src="/src/main.ts"></script>
-  </body>
+        <script type="module" src="/src/main.ts"></script>
+    </body>
 </html>

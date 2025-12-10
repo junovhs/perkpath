@@ -108,7 +108,8 @@ export class ConfigUI {
     ): void {
         document.getElementById(id)?.addEventListener("change", (e) => {
             const val = (e.target as HTMLInputElement).value;
-            const cfg = this.config as Record<string, Record<string, unknown>>;
+            // Double cast required for dynamic property access on typed interface
+            const cfg = this.config as unknown as Record<string, Record<string, unknown>>;
             cfg[group][key] = isInt ? Number.parseInt(val) : val;
             cb();
         });

@@ -95,7 +95,8 @@ function bindRouteTypeInputs(
             let value: string | number = (e.target as HTMLInputElement).value;
             if (field === "lineWidth") value = Number.parseInt(value);
 
-            (config.routeTypes[index] as Record<string, unknown>)[field] = value;
+            // Double cast required for dynamic property access
+            (config.routeTypes[index] as unknown as Record<string, unknown>)[field] = value;
             onUpdate();
         });
     }

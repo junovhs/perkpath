@@ -1,4 +1,0 @@
-Fix TypeScript build errors caused by unsafe type assertions.
-CHANGES:
-1.  **src/config-ui.ts**: Use `as unknown as` double cast to safely treat `AppConfig` as a dynamic record for input binding.
-2.  **src/ui-helpers.ts**: Use `as unknown as` double cast to safely update `RouteType` properties dynamically.

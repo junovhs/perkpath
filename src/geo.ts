@@ -10,7 +10,10 @@ export function generateBezierCurve(from: Location, to: Location): [number, numb
     const bearing = turf.bearing(start, end);
     const midPoint = turf.midpoint(start, end);
 
-    const offsetDistance = distance * 0.15;
+    // Adaptive offset - less curve for short distances, more for long
+    const offsetRatio = Math.min(0.2, Math.max(0.08, 0.15 - distance / 10000));
+    const offsetDistance = distance * offsetRatio;
+
     const controlPoint = turf.destination(midPoint, offsetDistance, bearing + 90, {
         units: "kilometers",
     });
@@ -21,10 +24,12 @@ export function generateBezierCurve(from: Location, to: Location): [number, numb
         [to.lng, to.lat],
     ]);
 
+    // Higher resolution for smoother curves
     const curved = turf.bezierSpline(line, {
-        resolution: 10000,
-        sharpness: 0.85,
+        resolution: 20000,
+        sharpness: 0.75,
     });
+
     return curved.geometry.coordinates.map((coord) => [coord[1], coord[0]]) as [number, number][];
 }
 
@@ -38,8 +43,6 @@ export function createDirectionArrow(
     const index = Math.floor(points.length * 0.5);
     const point = points[index];
 
-    // Use Turf to calculate geographic bearing between surrounding points
-    // points are [lat, lng], turf needs [lng, lat]
     const p1 = points[Math.max(0, index - 5)];
     const p2 = points[Math.min(points.length - 1, index + 5)];
 
@@ -47,8 +50,6 @@ export function createDirectionArrow(
 
     const start = turf.point([p1[1], p1[0]]);
     const end = turf.point([p2[1], p2[0]]);
-
-    // Bearing is decimal degrees, clockwise from North (0)
     const angle = turf.bearing(start, end);
 
     const icon = L.divIcon({

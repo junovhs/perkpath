@@ -1,38 +1,39 @@
-import type { AppConfig, RouteType, TripData } from "./types";
+import type { AppConfig, ColorPreset, RouteType, TripData } from "./types";
 
-export const DEFAULT_ROUTE_TYPES: RouteType[] = [
-    {
-        id: "drive",
-        name: "Motorcoach / Drive",
-        color: "#00b4d8",
-        lineStyle: "solid",
-        lineWidth: 5,
+export const COLOR_PRESETS: Record<string, ColorPreset> = {
+    standard: {
+        name: "Standard",
+        routes: { drive: "#00b4d8", rail: "#00b4d8", cruise: "#f97316", fly: "#a855f7" },
+        nodes: { startColor: "#22c55e", endColor: "#ef4444", defaultColor: "#f97316" },
     },
-    {
-        id: "rail",
-        name: "Rail",
-        color: "#00b4d8",
-        lineStyle: "dashed",
-        lineWidth: 5,
+    ocean: {
+        name: "Ocean",
+        routes: { drive: "#0ea5e9", rail: "#0284c7", cruise: "#06b6d4", fly: "#0369a1" },
+        nodes: { startColor: "#06b6d4", endColor: "#0369a1", defaultColor: "#0ea5e9" },
     },
-    {
-        id: "cruise",
-        name: "Cruise / Boat",
-        color: "#f97316",
-        lineStyle: "solid",
-        lineWidth: 5,
+    earth: {
+        name: "Earth",
+        routes: { drive: "#84cc16", rail: "#65a30d", cruise: "#ca8a04", fly: "#b45309" },
+        nodes: { startColor: "#84cc16", endColor: "#b45309", defaultColor: "#65a30d" },
     },
-    {
-        id: "fly",
-        name: "Flight",
-        color: "#a855f7",
-        lineStyle: "dashed",
-        lineWidth: 4,
+    sunset: {
+        name: "Sunset",
+        routes: { drive: "#f97316", rail: "#ea580c", cruise: "#dc2626", fly: "#be185d" },
+        nodes: { startColor: "#fbbf24", endColor: "#dc2626", defaultColor: "#f97316" },
     },
-];
+};
+
+export function createRouteTypes(preset: ColorPreset): RouteType[] {
+    return [
+        { id: "drive", name: "Motorcoach / Drive", color: preset.routes.drive, lineStyle: "solid" },
+        { id: "rail", name: "Rail", color: preset.routes.rail, lineStyle: "dashed" },
+        { id: "cruise", name: "Cruise / Boat", color: preset.routes.cruise, lineStyle: "solid" },
+        { id: "fly", name: "Flight", color: preset.routes.fly, lineStyle: "dashed" },
+    ];
+}
 
 export const DEFAULT_CONFIG: AppConfig = {
-    routeTypes: DEFAULT_ROUTE_TYPES,
+    routeTypes: createRouteTypes(COLOR_PRESETS.standard),
     labelStyle: {
         fontSize: 14,
         bgColor: "#ffffff",
@@ -43,10 +44,12 @@ export const DEFAULT_CONFIG: AppConfig = {
         borderWidth: 3,
         arrowSize: 20,
     },
+    nodeColors: COLOR_PRESETS.standard.nodes,
     legendStyle: {
         scale: 1,
         position: { x: 30, y: 30 },
     },
+    activePreset: "standard",
 };
 
 export const ALASKA_EXAMPLE: TripData = {

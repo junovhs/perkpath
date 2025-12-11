@@ -1,5 +1,6 @@
 import html2canvas from "html2canvas";
 import type L from "leaflet";
+import type { ExportOptions } from "./types";
 
 interface LayerContext {
     routes: L.LayerGroup;
@@ -7,12 +8,6 @@ interface LayerContext {
     labels: L.LayerGroup;
     arrows: L.LayerGroup;
     leaders: L.LayerGroup;
-}
-
-interface ExportOptions {
-    includeBase: boolean;
-    includeRoutes: boolean;
-    includeLabels: boolean;
 }
 
 export async function exportMapImage(
@@ -23,16 +18,24 @@ export async function exportMapImage(
     const mapContainer = map.getContainer();
     if (!mapContainer) return "";
 
-    const savedState = captureLayerState(map, layers);
-    setLayersForExport(map, layers, options);
+    const hiddenUI = hideElements(mapContainer, [
+        ".zoom-slider-container",
+        ".leaflet-control-container",
+    ]);
+
+    const hiddenLayers = hideLayers(layers, options);
+
+    const tilePane = mapContainer.querySelector(".leaflet-tile-pane") as HTMLElement;
+    if (tilePane && !options.includeBase) {
+        tilePane.style.visibility = "hidden";
+    }
+
+    await delay(200);
 
     try {
-        const { width, height } = mapContainer.getBoundingClientRect();
-
-        // Calculate scale to ensure at least 2000px on the smallest side
-        const minDim = Math.min(width, height);
+        const rect = mapContainer.getBoundingClientRect();
         const targetDim = 2000;
-        const scale = minDim < targetDim ? targetDim / minDim : 1;
+        const scale = Math.max(targetDim / rect.width, targetDim / rect.height, 1);
 
         const canvas = await html2canvas(mapContainer, {
             useCORS: true,
@@ -40,60 +43,70 @@ export async function exportMapImage(
             backgroundColor: options.includeBase ? null : "transparent",
             scale: scale,
             logging: false,
+            removeContainer: true,
         });
 
         return canvas.toDataURL("image/png");
     } finally {
-        restoreLayerState(map, layers, savedState);
+        restoreElements(hiddenUI);
+        showLayers(hiddenLayers);
+        if (tilePane) {
+            tilePane.style.visibility = "";
+        }
     }
 }
 
-function captureLayerState(map: L.Map, layers: LayerContext): Record<string, boolean> {
-    return {
-        routes: map.hasLayer(layers.routes),
-        nodes: map.hasLayer(layers.nodes),
-        labels: map.hasLayer(layers.labels),
-        arrows: map.hasLayer(layers.arrows),
-        leaders: map.hasLayer(layers.leaders),
+function delay(ms: number): Promise<void> {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function hideElements(container: HTMLElement, selectors: string[]): HTMLElement[] {
+    const hidden: HTMLElement[] = [];
+    for (const selector of selectors) {
+        const el = container.querySelector(selector) as HTMLElement;
+        if (el) {
+            el.style.visibility = "hidden";
+            hidden.push(el);
+        }
+    }
+    return hidden;
+}
+
+function restoreElements(elements: HTMLElement[]): void {
+    for (const el of elements) {
+        el.style.visibility = "";
+    }
+}
+
+interface HiddenLayer {
+    container: HTMLElement;
+    original: string;
+}
+
+function hideLayers(layers: LayerContext, options: ExportOptions): HiddenLayer[] {
+    const hidden: HiddenLayer[] = [];
+
+    const hide = (layer: L.LayerGroup) => {
+        const container = (layer as unknown as { _container?: HTMLElement })._container;
+        if (container) {
+            hidden.push({ container, original: container.style.visibility });
+            container.style.visibility = "hidden";
+        }
     };
-}
 
-function setLayersForExport(map: L.Map, layers: LayerContext, options: ExportOptions): void {
-    // We already have the view visibility set by the user (checkboxes).
-    // The export options here are overrides (e.g. "Base Only").
-    // However, if the user hid "arrows" in view, we probably still want to hide them unless "Routes Only" implies arrows too.
-    // For simplicity, this export function assumes specific override intent based on button clicks.
-
-    // Nuke everything first to be safe, then add back what is requested
-    map.removeLayer(layers.routes);
-    map.removeLayer(layers.nodes);
-    map.removeLayer(layers.arrows);
-    map.removeLayer(layers.labels);
-    map.removeLayer(layers.leaders);
-
-    if (options.includeRoutes) {
-        map.addLayer(layers.routes);
-        map.addLayer(layers.nodes);
-        map.addLayer(layers.arrows);
+    if (!options.includeRoutes) hide(layers.routes);
+    if (!options.includeNodes) hide(layers.nodes);
+    if (!options.includeArrows) hide(layers.arrows);
+    if (!options.includeLabels) {
+        hide(layers.labels);
+        hide(layers.leaders);
     }
-    if (options.includeLabels) {
-        map.addLayer(layers.labels);
-        map.addLayer(layers.leaders);
-    }
+
+    return hidden;
 }
 
-function restoreLayerState(map: L.Map, layers: LayerContext, state: Record<string, boolean>): void {
-    toggleLayer(map, layers.routes, state.routes);
-    toggleLayer(map, layers.nodes, state.nodes);
-    toggleLayer(map, layers.labels, state.labels);
-    toggleLayer(map, layers.arrows, state.arrows);
-    toggleLayer(map, layers.leaders, state.leaders);
-}
-
-function toggleLayer(map: L.Map, layer: L.LayerGroup, show: boolean) {
-    if (show) {
-        if (!map.hasLayer(layer)) map.addLayer(layer);
-    } else {
-        if (map.hasLayer(layer)) map.removeLayer(layer);
+function showLayers(hidden: HiddenLayer[]): void {
+    for (const { container, original } of hidden) {
+        container.style.visibility = original;
     }
 }

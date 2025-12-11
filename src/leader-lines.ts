@@ -7,50 +7,87 @@ export function createLeaderLine(
     placedLabel: PlacedLabel,
     nodeSize: number,
 ): L.Polyline | null {
+    const rect = getLabelRect(map, placedLabel);
+    if (!rect) return null;
+
     const nodePoint = map.latLngToContainerPoint([location.lat, location.lng]);
+    const closestCorner = findClosestCorner(rect, nodePoint);
 
-    // Find the edge of the label closest to the node
-    const edgePoint = findClosestLabelEdge(placedLabel.rect, nodePoint);
+    const dist = Math.sqrt(
+        (nodePoint.x - closestCorner.x) ** 2 + (nodePoint.y - closestCorner.y) ** 2,
+    );
 
-    // Calculate distance between node center and label edge
-    const dist = Math.sqrt((nodePoint.x - edgePoint.x) ** 2 + (nodePoint.y - edgePoint.y) ** 2);
-
-    // Threshold: 2.5 times the node diameter (nodeSize is radius, so diameter is size * 2)
-    const nodeDiameter = nodeSize * 2;
-    const threshold = nodeDiameter * 2.5;
-
+    const threshold = nodeSize * 5;
     if (dist < threshold) return null;
 
-    // Convert back to lat/lng for Polyline
-    const nodeLatLng: [number, number] = [location.lat, location.lng];
-    const edgeLatLng = map.containerPointToLatLng([edgePoint.x, edgePoint.y]);
+    const angle = Math.atan2(closestCorner.y - nodePoint.y, closestCorner.x - nodePoint.x);
+    const nodeEdge = {
+        x: nodePoint.x + Math.cos(angle) * nodeSize,
+        y: nodePoint.y + Math.sin(angle) * nodeSize,
+    };
 
-    return L.polyline([nodeLatLng, [edgeLatLng.lat, edgeLatLng.lng]], {
-        color: "#666666",
-        weight: 1,
-        opacity: 0.6,
-        dashArray: "4, 4",
-    });
+    const nodeEdgeLatLng = map.containerPointToLatLng([nodeEdge.x, nodeEdge.y]);
+    const cornerLatLng = map.containerPointToLatLng([closestCorner.x, closestCorner.y]);
+
+    return L.polyline(
+        [
+            [nodeEdgeLatLng.lat, nodeEdgeLatLng.lng],
+            [cornerLatLng.lat, cornerLatLng.lng],
+        ],
+        {
+            color: "#666666",
+            weight: 1,
+            opacity: 0.6,
+            dashArray: "4, 4",
+        },
+    );
 }
 
-function findClosestLabelEdge(
+function getLabelRect(
+    map: L.Map,
+    placedLabel: PlacedLabel,
+): { left: number; top: number; right: number; bottom: number } | null {
+    if (!placedLabel.marker) return null;
+
+    const el = placedLabel.marker.getElement();
+    if (!el) return null;
+
+    // Get the inner label element for accurate dimensions
+    const inner = el.querySelector(".location-label-inner") as HTMLElement;
+    if (!inner) return null;
+
+    const containerRect = map.getContainer().getBoundingClientRect();
+    const labelRect = inner.getBoundingClientRect();
+
+    return {
+        left: labelRect.left - containerRect.left,
+        top: labelRect.top - containerRect.top,
+        right: labelRect.right - containerRect.left,
+        bottom: labelRect.bottom - containerRect.top,
+    };
+}
+
+function findClosestCorner(
     rect: { left: number; top: number; right: number; bottom: number },
     point: { x: number; y: number },
 ): { x: number; y: number } {
-    const cx = (rect.left + rect.right) / 2;
-    const cy = (rect.top + rect.bottom) / 2;
+    const corners = [
+        { x: rect.left, y: rect.top },
+        { x: rect.right, y: rect.top },
+        { x: rect.left, y: rect.bottom },
+        { x: rect.right, y: rect.bottom },
+    ];
 
-    // Determine which edge is closest
-    const dx = point.x - cx;
-    const dy = point.y - cy;
+    let closest = corners[0];
+    let minDist = Number.MAX_VALUE;
 
-    const halfWidth = (rect.right - rect.left) / 2;
-    const halfHeight = (rect.bottom - rect.top) / 2;
-
-    if (Math.abs(dx / halfWidth) > Math.abs(dy / halfHeight)) {
-        // Closer to left or right edge
-        return { x: dx > 0 ? rect.right : rect.left, y: cy };
+    for (const corner of corners) {
+        const d = (point.x - corner.x) ** 2 + (point.y - corner.y) ** 2;
+        if (d < minDist) {
+            minDist = d;
+            closest = corner;
+        }
     }
-    // Closer to top or bottom edge
-    return { x: cx, y: dy > 0 ? rect.bottom : rect.top };
+
+    return closest;
 }

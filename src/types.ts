@@ -3,7 +3,6 @@ export interface RouteType {
     name: string;
     color: string;
     lineStyle: "solid" | "dashed";
-    lineWidth: number;
 }
 
 export interface LabelStyle {
@@ -18,16 +17,30 @@ export interface NodeStyle {
     arrowSize: number;
 }
 
+export interface NodeColorConfig {
+    startColor: string;
+    endColor: string;
+    defaultColor: string;
+}
+
 export interface LegendStyle {
     scale: number;
     position: { x: number; y: number };
+}
+
+export interface ColorPreset {
+    name: string;
+    routes: { drive: string; rail: string; cruise: string; fly: string };
+    nodes: NodeColorConfig;
 }
 
 export interface AppConfig {
     routeTypes: RouteType[];
     labelStyle: LabelStyle;
     nodeStyle: NodeStyle;
+    nodeColors: NodeColorConfig;
     legendStyle: LegendStyle;
+    activePreset: string;
 }
 
 export interface Location {
@@ -79,4 +92,22 @@ export interface ViewOptions {
     showNodes: boolean;
     showLabels: boolean;
     showArrows: boolean;
+}
+
+export interface SavedView {
+    id: string;
+    name: string;
+    timestamp: number;
+    tripData: TripData;
+    center: { lat: number; lng: number };
+    zoom: number;
+    config: AppConfig;
+}
+
+export interface ExportOptions {
+    includeBase: boolean;
+    includeRoutes: boolean;
+    includeLabels: boolean;
+    includeNodes: boolean;
+    includeArrows: boolean;
 }

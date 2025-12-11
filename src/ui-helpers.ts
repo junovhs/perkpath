@@ -5,9 +5,11 @@ export function showToast(message: string, type: "success" | "error"): void {
     if (!toast) return;
 
     toast.textContent = message;
-    toast.className = `toast show ${type}`;
+    toast.className = `toast ${type} show`;
 
-    setTimeout(() => toast.classList.remove("show"), 3000);
+    setTimeout(() => {
+        toast.classList.remove("show");
+    }, 3000);
 }
 
 export function setInputValue(id: string, value: string): void {
@@ -17,17 +19,14 @@ export function setInputValue(id: string, value: string): void {
 
 export function switchTab(tabId: string): void {
     for (const t of document.querySelectorAll(".tab")) {
-        t.classList.remove("active");
+        t.classList.toggle("active", t.getAttribute("data-tab") === tabId);
     }
     for (const c of document.querySelectorAll(".tab-content")) {
-        c.classList.remove("active");
+        c.classList.toggle("active", c.getAttribute("data-tab") === tabId);
     }
-
-    document.querySelector(`.tab[data-tab="${tabId}"]`)?.classList.add("active");
-    document.querySelector(`.tab-content[data-tab="${tabId}"]`)?.classList.add("active");
 }
 
-interface RouteTypeCallbacks {
+export interface RouteTypeCallbacks {
     onUpdate: () => void;
     onRemove: () => void;
 }
@@ -40,48 +39,32 @@ export function createRouteTypeElement(
 ): HTMLDivElement {
     const item = document.createElement("div");
     item.className = "route-type-item";
-    item.innerHTML = buildRouteTypeHtml(routeType);
+    item.innerHTML = buildRouteHtml(routeType);
 
-    bindRouteTypeInputs(item, index, config, callbacks.onUpdate);
+    bindRouteInputs(item, index, config, callbacks.onUpdate);
     item.querySelector(".route-type-remove")?.addEventListener("click", callbacks.onRemove);
 
     return item;
 }
 
-function buildRouteTypeHtml(routeType: RouteType): string {
-    const solidSelected = routeType.lineStyle === "solid" ? "selected" : "";
-    const dashedSelected = routeType.lineStyle === "dashed" ? "selected" : "";
+function buildRouteHtml(routeType: RouteType): string {
+    const solidSel = routeType.lineStyle === "solid" ? "selected" : "";
+    const dashedSel = routeType.lineStyle === "dashed" ? "selected" : "";
 
     return `
-        <div class="route-type-header">
-            <input type="text" value="${routeType.name}" data-field="name" />
+        <div class="route-type-row">
+            <input type="text" value="${routeType.name}" data-field="name" class="route-name" />
+            <input type="color" value="${routeType.color}" data-field="color" class="route-color" />
+            <select data-field="lineStyle" class="route-style">
+                <option value="solid" ${solidSel}>Solid</option>
+                <option value="dashed" ${dashedSel}>Dashed</option>
+            </select>
             <button class="route-type-remove" title="Remove">x</button>
-        </div>
-        <div class="route-type-options">
-            <label>
-                ID (for parsing)
-                <input type="text" value="${routeType.id}" data-field="id" style="width: 100%;" />
-            </label>
-            <label>
-                Color
-                <input type="color" value="${routeType.color}" data-field="color" />
-            </label>
-            <label>
-                Line Style
-                <select data-field="lineStyle">
-                    <option value="solid" ${solidSelected}>Solid</option>
-                    <option value="dashed" ${dashedSelected}>Dashed</option>
-                </select>
-            </label>
-            <label>
-                Line Width
-                <input type="number" value="${routeType.lineWidth}" data-field="lineWidth" min="1" max="12" style="width: 100%;" />
-            </label>
         </div>
     `;
 }
 
-function bindRouteTypeInputs(
+function bindRouteInputs(
     item: HTMLDivElement,
     index: number,
     config: AppConfig,
@@ -92,10 +75,7 @@ function bindRouteTypeInputs(
             const field = input.getAttribute("data-field");
             if (!field) return;
 
-            let value: string | number = (e.target as HTMLInputElement).value;
-            if (field === "lineWidth") value = Number.parseInt(value);
-
-            // Double cast required for dynamic property access
+            const value = (e.target as HTMLInputElement).value;
             (config.routeTypes[index] as unknown as Record<string, unknown>)[field] = value;
             onUpdate();
         });

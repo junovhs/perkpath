@@ -1,31 +1,48 @@
 import "./style.css";
-import { ALASKA_EXAMPLE, DEFAULT_CONFIG } from "./config";
+import { ALASKA_EXAMPLE, COLOR_PRESETS, DEFAULT_CONFIG, createRouteTypes } from "./config";
 import { ConfigUI } from "./config-ui";
 import { MapRenderer } from "./map";
 import { generatePromptString } from "./prompt";
-import type { AppConfig, RouteType } from "./types";
+import type { AppConfig } from "./types";
 import { createRouteTypeElement, showToast, switchTab } from "./ui-helpers";
+import { ViewManager } from "./view-manager";
 
 class App {
     private config: AppConfig;
     private mapRenderer: MapRenderer;
     private configUI: ConfigUI;
+    private viewManager: ViewManager;
     private generatedPrompt = "";
 
     constructor() {
         this.config = this.loadConfig();
         this.mapRenderer = new MapRenderer("map", this.config);
         this.configUI = new ConfigUI(this.config, this.mapRenderer, () => this.saveConfig());
+        this.viewManager = new ViewManager(this.mapRenderer, {
+            getConfig: () => this.config,
+            setConfig: (c) => {
+                this.config = c;
+            },
+            saveConfig: () => this.saveConfig(),
+        });
 
         this.initializeUI();
         this.renderRouteTypes();
+        this.viewManager.renderList();
     }
 
     private loadConfig(): AppConfig {
         const saved = localStorage.getItem("perkpath-config");
         if (saved) {
             try {
-                return JSON.parse(saved);
+                const parsed = JSON.parse(saved);
+                if (!parsed.nodeColors) {
+                    parsed.nodeColors = DEFAULT_CONFIG.nodeColors;
+                }
+                if (!parsed.activePreset) {
+                    parsed.activePreset = "standard";
+                }
+                return parsed;
             } catch {
                 return DEFAULT_CONFIG;
             }
@@ -40,6 +57,8 @@ class App {
     private initializeUI(): void {
         this.bindTabs();
         this.bindButtons();
+        this.bindColorPresets();
+        this.viewManager.bindControls();
         this.configUI.bindAll();
     }
 
@@ -65,9 +84,6 @@ class App {
         document.getElementById("loadExample")?.addEventListener("click", () => {
             this.loadExample();
         });
-        document.getElementById("addRouteType")?.addEventListener("click", () => {
-            this.addRouteType();
-        });
 
         for (const btn of document.querySelectorAll(".export-btn")) {
             btn.addEventListener("click", () => {
@@ -75,6 +91,28 @@ class App {
                 if (exportType) this.exportMap(exportType);
             });
         }
+    }
+
+    private bindColorPresets(): void {
+        const select = document.getElementById("colorPreset") as HTMLSelectElement;
+        if (!select) return;
+
+        // Set initial value
+        if (this.config.activePreset) {
+            select.value = this.config.activePreset;
+        }
+
+        select.addEventListener("change", () => {
+            const preset = COLOR_PRESETS[select.value];
+            if (preset) {
+                this.config.routeTypes = createRouteTypes(preset);
+                this.config.nodeColors = { ...preset.nodes };
+                this.config.activePreset = select.value;
+                this.saveConfig();
+                this.renderRouteTypes();
+                this.mapRenderer.updateConfig(this.config);
+            }
+        });
     }
 
     private generatePrompt(): void {
@@ -95,14 +133,14 @@ class App {
         if (copyBtn) copyBtn.disabled = false;
 
         switchTab("prompt");
-        showToast("Prompt generated! Copy and paste to AI.", "success");
+        showToast("Prompt generated!", "success");
     }
 
     private async copyPrompt(): Promise<void> {
         if (!this.generatedPrompt) return;
         try {
             await navigator.clipboard.writeText(this.generatedPrompt);
-            showToast("Copied to clipboard!", "success");
+            showToast("Copied!", "success");
         } catch {
             showToast("Failed to copy", "error");
         }
@@ -124,8 +162,7 @@ class App {
             showToast(`Rendered ${data.locations.length} locations!`, "success");
         } catch (err: unknown) {
             const message = err instanceof Error ? err.message : String(err);
-            console.error("Parse error:", err);
-            showToast(`JSON parse error: ${message}`, "error");
+            showToast(`Parse error: ${message}`, "error");
         }
     }
 
@@ -137,7 +174,6 @@ class App {
                 .replace(/\x60\x60\x60$/g, "")
                 .trim();
         }
-
         const data = JSON.parse(cleanJson);
         if (!data.locations || !data.segments) {
             throw new Error("Invalid JSON: missing locations or segments");
@@ -158,7 +194,7 @@ class App {
         if (!container) return;
 
         container.innerHTML = "";
-        this.config.routeTypes.forEach((rt, index) => {
+        for (const [index, rt] of this.config.routeTypes.entries()) {
             const callbacks = {
                 onUpdate: () => {
                     this.saveConfig();
@@ -173,31 +209,19 @@ class App {
             };
             const item = createRouteTypeElement(rt, index, this.config, callbacks);
             container.appendChild(item);
-        });
-    }
-
-    private addRouteType(): void {
-        const newType: RouteType = {
-            id: `type${this.config.routeTypes.length + 1}`,
-            name: "New Type",
-            color: "#888888",
-            lineStyle: "solid",
-            lineWidth: 4,
-        };
-
-        this.config.routeTypes.push(newType);
-        this.saveConfig();
-        this.renderRouteTypes();
+        }
     }
 
     private async exportMap(type: string): Promise<void> {
-        showToast("Exporting High-Res...", "success");
+        showToast("Exporting...", "success");
 
         try {
             const opts = {
                 includeBase: type === "full" || type === "base",
                 includeRoutes: type === "full" || type === "routes",
                 includeLabels: type === "full" || type === "labels",
+                includeNodes: type === "full" || type === "routes",
+                includeArrows: type === "full" || type === "routes",
             };
 
             const dataUrl = await this.mapRenderer.exportImage(opts);

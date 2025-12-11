@@ -3,8 +3,15 @@ import { createLeaderLine } from "./leader-lines";
 import { createLegend } from "./legend";
 import { type DrawContext, drawLabel, drawNode, drawSegment } from "./map-draw";
 import { exportMapImage } from "./map-exporter";
-import type { AppConfig, Location, PlacedLabel, TripData, ViewOptions } from "./types";
-import { createZoomSlider } from "./zoom-control";
+import type {
+    AppConfig,
+    ExportOptions,
+    Location,
+    PlacedLabel,
+    TripData,
+    ViewOptions,
+} from "./types";
+import { createZoomSlider, enableSmoothZoom } from "./zoom-control";
 
 export class MapRenderer {
     private map: L.Map;
@@ -31,7 +38,12 @@ export class MapRenderer {
         this.map = L.map(containerId, {
             zoomControl: false,
             attributionControl: true,
+            zoomSnap: 0,
+            zoomDelta: 0.25,
+            wheelPxPerZoomLevel: 120,
         }).setView([40, -95], 4);
+
+        enableSmoothZoom(this.map);
 
         this.tileLayer = L.tileLayer(
             "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",
@@ -51,6 +63,14 @@ export class MapRenderer {
         this.addZoomSlider();
         this.map.on("zoomend", () => this.onZoomEnd());
         this.map.on("moveend", () => this.onZoomEnd());
+    }
+
+    getMap(): L.Map {
+        return this.map;
+    }
+
+    getCurrentData(): TripData | null {
+        return this.currentData;
     }
 
     private addZoomSlider(): void {
@@ -116,9 +136,11 @@ export class MapRenderer {
         if (!this.currentData) return;
 
         const ctx = this.getDrawContext();
-        const sorted = this.sortLocationsByPriority(this.currentData.locations);
+        const deduped = this.dedupeLocations(this.currentData.locations);
+        const sorted = this.sortLocationsByPriority(deduped);
+
         for (const loc of sorted) {
-            const placed = drawLabel(loc, this.currentData.locations, this.placedLabels, ctx);
+            const placed = drawLabel(loc, deduped, this.placedLabels, ctx);
             this.placedLabels.push(placed);
         }
     }
@@ -142,22 +164,49 @@ export class MapRenderer {
         this.clear();
         this.currentData = data;
 
-        const locationMap = this.buildLocationMap(data.locations);
+        // Dedupe locations by name (keep first occurrence, merge flags)
+        const deduped = this.dedupeLocations(data.locations);
+        const locationMap = this.buildLocationMap(deduped);
         const ctx = this.getDrawContext();
 
         for (const segment of data.segments) {
             drawSegment(segment, locationMap, ctx);
         }
-        for (const loc of data.locations) {
+        for (const loc of deduped) {
             drawNode(loc, ctx);
         }
 
-        this.redrawLabels();
+        this.placedLabels = [];
+        const sorted = this.sortLocationsByPriority(deduped);
+        for (const loc of sorted) {
+            const placed = drawLabel(loc, deduped, this.placedLabels, ctx);
+            this.placedLabels.push(placed);
+        }
 
-        this.fitBounds(data.locations);
+        this.fitBounds(deduped);
         createLegend(data.segments, this.config.routeTypes, this.config.legendStyle);
         this.updateLeaderLines();
         this.applyVisibility();
+    }
+
+    private dedupeLocations(locations: Location[]): Location[] {
+        const seen = new Map<string, Location>();
+
+        for (const loc of locations) {
+            const existing = seen.get(loc.name);
+            if (existing) {
+                // Merge flags - if any instance is start/end, keep that
+                if (loc.isStart) existing.isStart = true;
+                if (loc.isEnd) existing.isEnd = true;
+                if (loc.labelPosition && !existing.labelPosition) {
+                    existing.labelPosition = loc.labelPosition;
+                }
+            } else {
+                seen.set(loc.name, { ...loc });
+            }
+        }
+
+        return Array.from(seen.values());
     }
 
     private getDrawContext(): DrawContext {
@@ -208,6 +257,15 @@ export class MapRenderer {
             arrows: this.arrowsLayer,
             leaders: this.leaderLinesLayer,
         };
-        return exportMapImage(this.map, layers, options);
+
+        const exportOpts: ExportOptions = {
+            includeBase: options.includeBase,
+            includeRoutes: options.includeRoutes,
+            includeLabels: options.includeLabels,
+            includeNodes: options.includeRoutes, // nodes go with routes
+            includeArrows: options.includeRoutes,
+        };
+
+        return exportMapImage(this.map, layers, exportOpts);
     }
 }

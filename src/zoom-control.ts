@@ -14,7 +14,7 @@ export function createZoomSlider(map: L.Map): HTMLDivElement {
                 class="zoom-slider" 
                 min="${minZoom}" 
                 max="${maxZoom}" 
-                step="0.1" 
+                step="0.01" 
                 value="${map.getZoom()}"
             />
         </div>
@@ -26,24 +26,31 @@ export function createZoomSlider(map: L.Map): HTMLDivElement {
     const zoomOut = container.querySelector(".zoom-out") as HTMLButtonElement;
 
     slider.addEventListener("input", () => {
-        map.setZoom(Number.parseFloat(slider.value));
+        const zoom = Number.parseFloat(slider.value);
+        map.setZoom(zoom, { animate: false });
     });
 
     zoomIn.addEventListener("click", () => {
-        map.zoomIn(0.5);
+        map.zoomIn(0.25);
     });
 
     zoomOut.addEventListener("click", () => {
-        map.zoomOut(0.5);
+        map.zoomOut(0.25);
     });
 
-    map.on("zoomend", () => {
+    map.on("zoom", () => {
         slider.value = String(map.getZoom());
     });
 
-    // Prevent map interactions when using slider
     L.DomEvent.disableClickPropagation(container);
     L.DomEvent.disableScrollPropagation(container);
 
     return container;
+}
+
+export function enableSmoothZoom(map: L.Map): void {
+    // Enable fractional zoom and smooth wheel zooming
+    map.options.zoomSnap = 0;
+    map.options.zoomDelta = 0.25;
+    map.options.wheelPxPerZoomLevel = 120;
 }

@@ -47,7 +47,7 @@
                             <span class="placeholder">Enter itinerary text first...</span>
                         </div>
                         <button id="copyPrompt" class="primary-btn" disabled>
-                            &#128203; Copy to Clipboard
+                            Copy to Clipboard
                         </button>
                         <p class="hint">
                             Paste this to Claude, ChatGPT, etc. Then paste the JSON response in the
@@ -57,17 +57,13 @@
                 </section>
 
                 <section class="tab-content" data-tab="render">
-                    <div class="panel">
+                    <div class="panel compact">
                         <h2>View Options</h2>
-                        <div class="config-row">
-                            <label><input type="checkbox" id="showBase" checked> Map Base</label>
-                            <label><input type="checkbox" id="showLabels" checked> Labels</label>
-                        </div>
-                        <div class="config-row">
+                        <div class="checkbox-grid">
+                            <label><input type="checkbox" id="showBase" checked> Base Map</label>
                             <label><input type="checkbox" id="showRoutes" checked> Routes</label>
                             <label><input type="checkbox" id="showNodes" checked> Nodes</label>
-                        </div>
-                         <div class="config-row">
+                            <label><input type="checkbox" id="showLabels" checked> Labels</label>
                             <label><input type="checkbox" id="showArrows" checked> Arrows</label>
                         </div>
                     </div>
@@ -78,65 +74,69 @@
                             id="jsonInput"
                             placeholder='{ "title": "My Trip", "locations": [...], "segments": [...] }'
                         ></textarea>
-                        <button id="renderMap" class="primary-btn">&#128506; Render Map</button>
+                        <button id="renderMap" class="primary-btn">Render Map</button>
+                        <button id="loadExample" class="secondary-btn small">Load Example</button>
                     </div>
 
-                    <div class="panel">
-                        <h2>Or Load Example</h2>
-                        <button id="loadExample" class="secondary-btn">Load Alaska Example</button>
-                    </div>
-
-                    <div class="panel">
-                        <h2>Export Layers (High Res)</h2>
-                        <div class="export-buttons">
+                    <div class="panel compact">
+                        <h2>Export (High Res)</h2>
+                        <div class="button-grid">
                             <button class="export-btn" data-export="full">Full Map</button>
                             <button class="export-btn" data-export="base">Base Only</button>
                             <button class="export-btn" data-export="labels">Labels Only</button>
                             <button class="export-btn" data-export="routes">Routes Only</button>
                         </div>
                     </div>
+
+                    <div class="panel compact">
+                        <h2>Saved Views</h2>
+                        <div class="button-row">
+                            <button id="saveView" class="secondary-btn">Save View</button>
+                            <button id="importView" class="secondary-btn">Import</button>
+                        </div>
+                        <input type="file" id="viewFileInput" accept=".json" style="display:none" />
+                        <div id="savedViewsList" class="saved-views-list"></div>
+                    </div>
                 </section>
 
                 <section class="tab-content" data-tab="config">
                     <div class="panel">
-                        <h2>Route Types</h2>
-                        <p class="hint">Configure how different transport modes appear.</p>
-                        <div id="routeTypes" class="route-types"></div>
-                        <button id="addRouteType" class="secondary-btn">+ Add Route Type</button>
+                        <h2>Color Theme</h2>
+                        <select id="colorPreset" class="full-width">
+                            <option value="standard">Standard</option>
+                            <option value="ocean">Ocean</option>
+                            <option value="earth">Earth</option>
+                            <option value="sunset">Sunset</option>
+                        </select>
                     </div>
 
                     <div class="panel">
-                        <h2>Label Style</h2>
-                        <div class="config-row full-width">
-                            <label>Font Size: <span id="labelFontSizeValue">14px</span></label>
-                            <input
-                                type="range"
-                                id="labelFontSize"
-                                value="14"
-                                min="8"
-                                max="32"
-                                step="1"
-                            />
+                        <h2>Route Types</h2>
+                        <div id="routeTypes" class="route-types-compact"></div>
+                    </div>
+
+                    <div class="panel">
+                        <h2>Labels</h2>
+                        <div class="config-row">
+                            <label>Size</label>
+                            <input type="range" id="labelFontSize" value="14" min="8" max="32" step="1" />
+                            <span id="labelFontSizeValue">14px</span>
                         </div>
                         <div class="config-row">
                             <label>Background</label>
                             <input type="color" id="labelBgColor" value="#ffffff" />
                         </div>
                         <div class="config-row">
-                            <label>Text Color</label>
+                            <label>Text</label>
                             <input type="color" id="labelTextColor" value="#1a1d23" />
                         </div>
                     </div>
 
                     <div class="panel">
-                        <h2>Node Style</h2>
+                        <h2>Nodes & Arrows</h2>
                         <div class="config-row">
-                            <label>Size</label>
+                            <label>Node Size</label>
                             <input type="number" id="nodeSize" value="12" min="6" max="24" />
-                        </div>
-                        <div class="config-row">
-                            <label>Border Width</label>
-                            <input type="number" id="nodeBorderWidth" value="3" min="1" max="8" />
                         </div>
                         <div class="config-row">
                             <label>Arrow Size</label>
@@ -146,18 +146,11 @@
 
                     <div class="panel">
                         <h2>Legend</h2>
-                        <div class="config-row full-width">
-                            <label>Scale: <span id="legendScaleValue">1.0</span>x</label>
-                            <input
-                                type="range"
-                                id="legendScale"
-                                value="1"
-                                min="0.5"
-                                max="2"
-                                step="0.1"
-                            />
+                        <div class="config-row">
+                            <label>Scale</label>
+                            <input type="range" id="legendScale" value="1" min="0.5" max="2" step="0.1" />
+                            <span id="legendScaleValue">1.0x</span>
                         </div>
-                        <p class="hint">Drag the legend to reposition it.</p>
                     </div>
                 </section>
             </aside>

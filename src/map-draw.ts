@@ -18,6 +18,8 @@ export interface DrawContext {
     onUpdate: () => void;
 }
 
+const DEFAULT_LINE_WIDTH = 5;
+
 export function drawSegment(
     segment: Segment,
     locationMap: Record<string, Location>,
@@ -31,13 +33,12 @@ export function drawSegment(
     const routeConfig = getRouteConfig(segment.transport, ctx.config);
     const color = routeConfig?.color || "#888888";
     const isDashed = routeConfig?.lineStyle === "dashed";
-    const weight = routeConfig?.lineWidth || 4;
 
     const curvePoints = generateBezierCurve(from, to);
 
     L.polyline(curvePoints, {
         color,
-        weight,
+        weight: DEFAULT_LINE_WIDTH,
         opacity: 1,
         lineCap: "round",
         lineJoin: "round",
@@ -49,7 +50,11 @@ export function drawSegment(
 
 export function drawNode(location: Location, ctx: DrawContext): void {
     const { size, borderWidth } = ctx.config.nodeStyle;
-    const nodeColor = location.isEnd ? "#22c55e" : "#f97316";
+    const { startColor, endColor, defaultColor } = ctx.config.nodeColors;
+
+    let nodeColor = defaultColor;
+    if (location.isStart) nodeColor = startColor;
+    else if (location.isEnd) nodeColor = endColor;
 
     L.circleMarker([location.lat, location.lng], {
         radius: size,
@@ -68,7 +73,9 @@ export function drawLabel(
     ctx: DrawContext,
 ): PlacedLabel {
     const { fontSize, bgColor, textColor } = ctx.config.labelStyle;
+    const { startColor, endColor } = ctx.config.nodeColors;
     const bufferRadius = ctx.config.nodeStyle.size * 2;
+
     const layoutCtx = {
         map: ctx.map,
         placedLabels,
@@ -82,8 +89,15 @@ export function drawLabel(
     const labelSize = estimateLabelSize(location.name, fontSize);
     const rect = getLabelRect(pixelPos, labelSize, position);
 
-    const bg = location.isEnd ? "#22c55e" : location.isStart ? "#1a1d23" : bgColor;
-    const fg = location.isStart || location.isEnd ? "#ffffff" : textColor;
+    let bg = bgColor;
+    let fg = textColor;
+    if (location.isStart) {
+        bg = startColor;
+        fg = "#ffffff";
+    } else if (location.isEnd) {
+        bg = endColor;
+        fg = "#ffffff";
+    }
 
     const icon = L.divIcon({
         className: "location-label-wrapper",
@@ -100,20 +114,16 @@ export function drawLabel(
 
     const placedLabel: PlacedLabel = { location, rect, position, marker };
 
-    // Drag Handler
     marker.on("drag", () => {
         const newLatLng = marker.getLatLng();
         const newPoint = ctx.map.latLngToContainerPoint(newLatLng);
-
         placedLabel.rect.left = newPoint.x;
         placedLabel.rect.top = newPoint.y;
         placedLabel.rect.right = newPoint.x + labelSize.width;
         placedLabel.rect.bottom = newPoint.y + labelSize.height;
-
         ctx.onUpdate();
     });
 
-    // Click Handler (Ctrl+Click to hide)
     marker.on("click", (e: L.LeafletMouseEvent) => {
         if (e.originalEvent.ctrlKey) {
             ctx.labelsLayer.removeLayer(marker);

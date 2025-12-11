@@ -1,5 +1,3 @@
-tasks = []
-
 [meta]
 title = "PerkPath by TravelPerks"
 description = "Visual itinerary map generator"
@@ -13,15 +11,10 @@ order = 0
 [[sections]]
 id = "v0.2.0"
 title = "Refactoring & SlopChop Compliance"
-status = "done"
+status = "current"
 order = 1
 
-[[sections]]
-id = "v0.3.0"
-title = "UX Polish & Export Fixes"
-status = "current"
-order = 2
-
+# v0.1.0 Tasks
 [[tasks]]
 id = "init-project"
 text = "Set up package.json and dependencies"
@@ -71,6 +64,7 @@ status = "done"
 section = "v0.1.0"
 order = 6
 
+# v0.2.0 Tasks
 [[tasks]]
 id = "fix-html-parse-error"
 text = "Fix control characters in index.html causing parse errors"
@@ -203,73 +197,3 @@ text = "Create README and DESIGN_DOC"
 status = "done"
 section = "v0.2.0"
 order = 18
-
-[[tasks]]
-id = "dedupe-locations"
-text = "Deduplicate locations with same name (e.g. Kilimanjaro Airport)"
-status = "pending"
-section = "v0.3.0"
-order = 0
-
-[[tasks]]
-id = "leader-line-corners"
-text = "Leader lines connect to closest corner of label box with no gap"
-status = "pending"
-section = "v0.3.0"
-order = 1
-
-[[tasks]]
-id = "smooth-beziers"
-text = "Smooth out janky bezier curves on route segments"
-status = "pending"
-section = "v0.3.0"
-order = 2
-
-[[tasks]]
-id = "start-end-colors"
-text = "Green=start, Red=end node color convention"
-status = "pending"
-section = "v0.3.0"
-order = 3
-
-[[tasks]]
-id = "color-presets"
-text = "Add color preset palette system for route types"
-status = "pending"
-section = "v0.3.0"
-order = 4
-
-[[tasks]]
-id = "smooth-zoom"
-text = "Implement fractional/smooth zooming without tile stepping"
-status = "pending"
-section = "v0.3.0"
-order = 5
-
-[[tasks]]
-id = "fix-export-viewport"
-text = "Export exactly matches viewport bounds and framing"
-status = "pending"
-section = "v0.3.0"
-order = 6
-
-[[tasks]]
-id = "fix-export-layers"
-text = "Fix layer-only exports (labels only, routes only) with transparency"
-status = "pending"
-section = "v0.3.0"
-order = 7
-
-[[tasks]]
-id = "save-restore-views"
-text = "Save/restore view configurations to browser storage and files"
-status = "pending"
-section = "v0.3.0"
-order = 8
-
-[[tasks]]
-id = "inset-map"
-text = "Picture-in-picture inset for clustered regions on wide-area maps"
-status = "pending"
-section = "v0.3.0"
-order = 9

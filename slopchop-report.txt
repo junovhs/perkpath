@@ -1,10 +1,10 @@
 SLOPCHOP CHECK REPORT
-Generated: 2026-01-15 12:23:12
+Generated: 2026-01-15 13:12:47
 Status: PASSED
 
 === DASHBOARD ===
 Top 5 Cognitive Complexity:
-  17   src\components\map_view.rs
+  16   src\components\map_view.rs
   1    assets\interop.js
   1    src\geo.rs
   0    assets\leader-lines.js
@@ -13,9 +13,9 @@ Top 5 Cognitive Complexity:
 Top 5 Largest Files (Tokens):
   1476  src\geo.rs
   1415  src\types.rs
-  1146  src\components\map_view.rs
+  1181  src\components\map_view.rs
   1098  assets\ui.css
-  991   src\components\sidebar.rs
+  1049  assets\renderer.js
 
 === VIOLATIONS ===
 None. Codebase is clean.
@@ -24,27 +24,27 @@ None. Codebase is clean.
 
 >>> COMMAND: cargo clippy --all-targets -- -D warnings -W clippy::pedantic -W clippy::unwrap_used -W clippy::expect_used -A clippy::module_name_repetitions -A clippy::must_use_candidate -A clippy::missing_errors_doc
     Checking perkpath v0.1.0 (C:\Users\SpencerNunamakerTrav\perkpath)
-    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.81s
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.63s
 
 
 >>> COMMAND: cargo test
 
 running 9 tests
 test geo::tests::test_calculate_arrow_rotation_empty ... ok
-test geo::tests::test_calculate_arrow_rotation ... ok
-test geo::tests::test_generate_curve_resolution ... ok
 test geo::tests::test_generate_curve_endpoints ... ok
-test parser::tests::test_generate_prompt_empty_routes ... ok
 test parser::tests::test_generate_prompt_structure ... ok
-test types::tests::test_location_defaults ... ok
-test types::tests::test_trip_data_defaults ... ok
+test geo::tests::test_generate_curve_resolution ... ok
 test types::tests::test_full_roundtrip ... ok
+test types::tests::test_trip_data_defaults ... ok
+test types::tests::test_location_defaults ... ok
+test geo::tests::test_calculate_arrow_rotation ... ok
+test parser::tests::test_generate_prompt_empty_routes ... ok
 
 test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
 
    Compiling perkpath v0.1.0 (C:\Users\SpencerNunamakerTrav\perkpath)
-    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.26s
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.10s
      Running unittests src\main.rs (target\debug\deps\perkpath-39bcb6de3bfe9a9d.exe)
 
 

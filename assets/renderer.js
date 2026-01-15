@@ -36,10 +36,20 @@ window.MapRenderer = {
 
     drawArrows: function(arrows, layerGroup) {
         if (!arrows) return;
-        // SVG Arrow Path (Simple Triangle)
+        // SVG Arrow Path: Filled Arrowhead with White Outline
         const arrowSvg = `
             <svg viewBox="0 0 24 24" width="24" height="24" style="overflow: visible;">
-                <path d="M2,2 L22,12 L2,22" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                <defs>
+                    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+                        <feDropShadow dx="0" dy="1" stdDeviation="1.5" flood-color="rgba(0,0,0,0.3)" />
+                    </filter>
+                </defs>
+                <path d="M5,4 L20,12 L5,20 L8,12 Z" 
+                      fill="currentColor" 
+                      stroke="white" 
+                      stroke-width="1.5" 
+                      stroke-linejoin="round"
+                      style="filter: url(#shadow);" />
             </svg>
         `;
 
@@ -54,7 +64,6 @@ window.MapRenderer = {
                     display: flex;
                     align-items: center;
                     justify-content: center;
-                    filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3));
                 ">${arrowSvg}</div>`,
                 iconSize: [24, 24],
                 iconAnchor: [12, 12]
@@ -80,6 +89,9 @@ window.MapRenderer = {
     drawLabels: function(labels, layerGroup, allLabels, map, leaderLinesGroup, activeLeaderLines) {
         if (!labels) return;
         labels.forEach(label => {
+            // Use the font_size from Rust, fallback to 12 if missing
+            const fontSize = label.font_size || 12;
+            
             const icon = L.divIcon({
                 className: 'custom-label', 
                 html: `<div class="label-inner" style="
@@ -87,7 +99,7 @@ window.MapRenderer = {
                     color: ${label.text_color}; 
                     padding: 4px 8px; 
                     border-radius: 4px; 
-                    font-size: 12px; 
+                    font-size: ${fontSize}px; 
                     font-weight: bold;
                     white-space: nowrap;
                     box-shadow: 0 2px 4px rgba(0,0,0,0.2);

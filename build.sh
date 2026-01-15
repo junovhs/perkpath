@@ -14,4 +14,4 @@ rustup target add wasm32-unknown-unknown
 # Use --version flag with exact version
 cargo install dioxus-cli --version "0.5.6" --locked
 
-dx build --release --web
+dx build --release --platform web

@@ -1,5 +1,5 @@
 SLOPCHOP CHECK REPORT
-Generated: 2026-01-15 13:24:34
+Generated: 2026-01-15 13:58:44
 Status: PASSED
 
 === DASHBOARD ===
@@ -8,14 +8,14 @@ Top 5 Cognitive Complexity:
   1    assets\interop.js
   1    src\geo.rs
   0    assets\leader-lines.js
-  0    assets\renderer.js
+  0    assets\legend.js
 
 Top 5 Largest Files (Tokens):
   1476  src\geo.rs
+  1443  src\components\map_view.rs
   1415  src\types.rs
-  1206  src\components\map_view.rs
+  1233  assets\renderer.js
   1098  assets\ui.css
-  1095  assets\renderer.js
 
 === VIOLATIONS ===
 None. Codebase is clean.
@@ -23,28 +23,26 @@ None. Codebase is clean.
 === FULL OUTPUT LOGS ===
 
 >>> COMMAND: cargo clippy --all-targets -- -D warnings -W clippy::pedantic -W clippy::unwrap_used -W clippy::expect_used -A clippy::module_name_repetitions -A clippy::must_use_candidate -A clippy::missing_errors_doc
-    Checking perkpath v0.1.0 (C:\Users\SpencerNunamakerTrav\perkpath)
-    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.67s
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.36s
 
 
 >>> COMMAND: cargo test
 
 running 9 tests
-test geo::tests::test_calculate_arrow_rotation ... ok
-test geo::tests::test_generate_curve_endpoints ... ok
+test geo::tests::test_generate_curve_resolution ... ok
 test geo::tests::test_calculate_arrow_rotation_empty ... ok
-test parser::tests::test_generate_prompt_empty_routes ... ok
+test geo::tests::test_calculate_arrow_rotation ... ok
+test types::tests::test_trip_data_defaults ... ok
 test types::tests::test_location_defaults ... ok
+test geo::tests::test_generate_curve_endpoints ... ok
 test types::tests::test_full_roundtrip ... ok
 test parser::tests::test_generate_prompt_structure ... ok
-test types::tests::test_trip_data_defaults ... ok
-test geo::tests::test_generate_curve_resolution ... ok
+test parser::tests::test_generate_prompt_empty_routes ... ok
 
 test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
 
-   Compiling perkpath v0.1.0 (C:\Users\SpencerNunamakerTrav\perkpath)
-    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.05s
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.32s
      Running unittests src\main.rs (target\debug\deps\perkpath-39bcb6de3bfe9a9d.exe)
 
 

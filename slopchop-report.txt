@@ -1,21 +1,21 @@
 SLOPCHOP CHECK REPORT
-Generated: 2026-01-14 22:45:55
+Generated: 2026-01-15 11:02:46
 Status: PASSED
 
 === DASHBOARD ===
 Top 5 Cognitive Complexity:
-  2    src/components/map_view.rs
-  1    src/geo.rs
-  0    assets/style.css
-  0    assets/interop.js
+  2    src\components\map_view.rs
+  1    src\geo.rs
+  0    assets\interop.js
+  0    assets\style.css
   0    Cargo.toml
 
 Top 5 Largest Files (Tokens):
-  1185  assets/style.css
-  967   src/types.rs
-  749   src/components/sidebar.rs
-  698   src/geo.rs
-  513   src/parser.rs
+  1185  assets\style.css
+  967   src\types.rs
+  787   src\geo.rs
+  749   src\components\sidebar.rs
+  513   src\parser.rs
 
 === VIOLATIONS ===
 None. Codebase is clean.
@@ -23,222 +23,8 @@ None. Codebase is clean.
 === FULL OUTPUT LOGS ===
 
 >>> COMMAND: cargo clippy --all-targets -- -D warnings -W clippy::pedantic -W clippy::unwrap_used -W clippy::expect_used -A clippy::module_name_repetitions -A clippy::must_use_candidate -A clippy::missing_errors_doc
-    Updating crates.io index
- Downloading crates ...
-  Downloaded approx v0.5.1
-  Downloaded dioxus v0.5.6
-  Downloaded constcat v0.3.1
-  Downloaded dioxus-config-macro v0.5.6
-  Downloaded gloo-events v0.1.2
-  Downloaded gloo-storage v0.2.2
-  Downloaded gloo-render v0.1.1
-  Downloaded dioxus-lib v0.5.6
-  Downloaded dioxus-debug-cell v0.1.1
-  Downloaded float_next_after v1.0.0
-  Downloaded dioxus-hot-reload v0.5.6
-  Downloaded gloo-file v0.2.3
-  Downloaded dioxus-cli-config v0.5.6
-  Downloaded to_method v1.1.0
-  Downloaded gloo-timers v0.2.6
-  Downloaded wasm-bindgen-macro v0.2.108
-  Downloaded wasm-bindgen-shared v0.2.108
-  Downloaded sledgehammer_utils v0.2.1
-  Downloaded gloo-worker v0.2.1
-  Downloaded dioxus-html-internal-macro v0.5.6
-  Downloaded gloo-utils v0.1.7
-  Downloaded gloo-history v0.1.5
-  Downloaded anymap2 v0.13.0
-  Downloaded intmap v0.7.1
-  Downloaded gloo-dialogs v0.1.1
-  Downloaded generational-box v0.5.6
-  Downloaded gloo-console v0.2.3
-  Downloaded spinning v0.1.0
-  Downloaded dioxus_server_macro v0.5.6
-  Downloaded dioxus-hooks v0.5.6
-  Downloaded cargo_metadata v0.18.1
-  Downloaded bincode v1.3.3
-  Downloaded sledgehammer_bindgen_macro v0.5.1
-  Downloaded dioxus-interpreter-js v0.5.6
-  Downloaded sledgehammer_bindgen v0.5.0
-  Downloaded camino v1.2.2
-  Downloaded gloo-net v0.3.1
-  Downloaded wasm-bindgen-futures v0.4.58
-  Downloaded dioxus-fullstack v0.5.6
-  Downloaded dioxus-core-macro v0.5.6
-  Downloaded dioxus-signals v0.5.7
-  Downloaded internment v0.7.5
-  Downloaded dioxus-rsx v0.5.6
-  Downloaded dioxus-router-macro v0.5.6
-  Downloaded dioxus-router v0.5.6
-  Downloaded wasm-bindgen v0.2.108
-  Downloaded js-sys v0.3.85
-  Downloaded geographiclib-rs v0.2.5
-  Downloaded dioxus-web v0.5.6
-  Downloaded krates v0.16.10
-  Downloaded wasm-bindgen-macro-support v0.2.108
-  Downloaded dioxus-core v0.5.6
-  Downloaded dioxus-html v0.5.6
-  Downloaded geo-types v0.7.18
-  Downloaded bumpalo v3.19.1
-  Downloaded url v2.5.8
-  Downloaded zerocopy-derive v0.8.33
-  Downloaded interprocess-docfix v1.2.2
-  Downloaded itertools v0.11.0
-  Downloaded geo v0.28.0
-  Downloaded zerocopy v0.8.33
-  Downloaded gloo v0.8.1
-  Downloaded console_error_panic_hook v0.1.7
-  Downloaded robust v1.2.0
-  Downloaded spade v2.15.0
-  Downloaded web-sys v0.3.85
-  Downloaded earcutr v0.4.3
-   Compiling proc-macro2 v1.0.105
-   Compiling quote v1.0.43
-   Compiling unicode-ident v1.0.22
-   Compiling serde_core v1.0.228
-   Compiling serde v1.0.228
-    Checking cfg-if v1.0.4
-    Checking once_cell v1.21.3
-   Compiling version_check v0.9.5
-   Compiling parking_lot_core v0.9.12
-    Checking smallvec v1.15.1
-   Compiling wasm-bindgen-shared v0.2.108
-    Checking pin-project-lite v0.2.16
-   Compiling libm v0.2.15
-   Compiling zmij v1.0.14
-   Compiling rustversion v1.0.22
-   Compiling autocfg v1.5.0
-    Checking futures-core v0.3.31
-   Compiling libc v0.2.180
-    Checking scopeguard v1.2.0
-   Compiling zerocopy v0.8.33
-   Compiling bumpalo v3.19.1
-   Compiling thiserror v1.0.69
-   Compiling serde_json v1.0.149
-    Checking equivalent v1.0.2
-    Checking allocator-api2 v0.2.21
-    Checking lock_api v0.4.14
-   Compiling camino v1.2.2
-    Checking futures-task v0.3.31
-    Checking tracing-core v0.1.36
-    Checking pin-utils v0.1.0
-    Checking log v0.4.29
-    Checking slab v0.4.11
-    Checking lazy_static v1.5.0
-    Checking rustc-hash v1.1.0
-   Compiling slotmap v1.1.1
-   Compiling ahash v0.8.12
-   Compiling crossbeam-utils v0.8.21
-    Checking sharded-slab v0.1.7
-    Checking thread_local v1.1.9
-   Compiling ident_case v1.0.1
-    Checking nu-ansi-term v0.50.3
-   Compiling fnv v1.0.7
-    Checking tracing-log v0.2.0
-   Compiling num-traits v0.2.19
-    Checking futures-channel v0.3.31
-    Checking memchr v2.7.6
-    Checking foldhash v0.1.5
-    Checking itoa v1.0.17
-    Checking longest-increasing-subsequence v0.1.0
-   Compiling unicode-segmentation v1.12.0
-    Checking parking v2.2.1
-    Checking hashbrown v0.15.5
-   Compiling hashbrown v0.16.1
-    Checking futures-io v0.3.31
-    Checking atomic-waker v1.1.2
-    Checking concurrent-queue v2.5.0
-   Compiling fixedbitset v0.4.2
-   Compiling md5 v0.7.0
-    Checking tracing-subscriber v0.3.22
-   Compiling convert_case v0.6.0
-    Checking event-listener v5.4.1
-   Compiling heapless v0.8.0
-    Checking byteorder v1.5.0
-   Compiling wasm-bindgen v0.2.108
-    Checking fastrand v2.3.0
-    Checking event-listener-strategy v0.5.4
-    Checking indexmap v2.13.0
-    Checking hash32 v0.3.1
-    Checking lru v0.12.5
-    Checking async-channel v2.5.0
-   Compiling futures-util v0.3.31
-   Compiling dioxus-interpreter-js v0.5.6
-    Checking piper v0.2.4
-   Compiling syn v2.0.114
-   Compiling cfg-expr v0.15.8
-    Checking futures-lite v2.6.1
-    Checking async-task v4.7.1
-   Compiling prettyplease v0.2.37
-    Checking stable_deref_trait v1.2.1
-    Checking sledgehammer_utils v0.2.1
-    Checking spinning v0.1.0
-    Checking to_method v1.1.0
-    Checking intmap v0.7.1
-    Checking either v1.15.0
-   Compiling constcat v0.3.1
-   Compiling dioxus v0.5.6
-    Checking robust v1.2.0
-    Checking dioxus-debug-cell v0.1.1
-   Compiling dioxus-config-macro v0.5.6
-    Checking geographiclib-rs v0.2.5
-    Checking float_next_after v1.0.0
-    Checking itertools v0.11.0
-    Checking blocking v1.6.2
-    Checking petgraph v0.6.5
-   Compiling parking_lot v0.12.5
-    Checking ordered-float v2.10.1
-    Checking rstar v0.12.2
-    Checking approx v0.5.1
-    Checking spade v2.15.0
-   Compiling generational-box v0.5.6
-    Checking hashbrown v0.14.5
-    Checking geo-types v0.7.18
-    Checking semver v1.0.27
-    Checking bitflags v2.10.0
-    Checking internment v0.7.5
-    Checking earcutr v0.4.3
-    Checking geo v0.28.0
-   Compiling rustc_version v0.4.1
-   Compiling interprocess-docfix v1.2.2
-   Compiling wasm-bindgen-macro-support v0.2.108
-   Compiling darling_core v0.21.3
-   Compiling serde_derive v1.0.228
-   Compiling thiserror-impl v1.0.69
-   Compiling tracing-attributes v0.1.31
-   Compiling futures-macro v0.3.31
-   Compiling async-trait v0.1.89
-   Compiling sledgehammer_bindgen_macro v0.5.1
-   Compiling dioxus-html-internal-macro v0.5.6
-   Compiling serde_repr v0.1.20
-    Checking tracing v0.1.44
-   Compiling darling_macro v0.21.3
-   Compiling wasm-bindgen-macro v0.2.108
-   Compiling darling v0.21.3
-   Compiling enumset_derive v0.14.0
-    Checking js-sys v0.3.85
-    Checking sledgehammer_bindgen v0.5.0
-    Checking console_error_panic_hook v0.1.7
-    Checking cargo-platform v0.1.9
-    Checking keyboard-types v0.7.0
-    Checking serde-value v0.7.0
-    Checking euclid v0.22.11
-    Checking enumset v1.1.10
-    Checking cargo_metadata v0.18.1
-    Checking dioxus-core v0.5.6
-    Checking krates v0.16.10
-    Checking dioxus-signals v0.5.7
-    Checking dioxus-rsx v0.5.6
-    Checking dioxus-hooks v0.5.6
-   Compiling dioxus-core-macro v0.5.6
-    Checking web-sys v0.3.85
-    Checking wasm-bindgen-futures v0.4.58
-    Checking serde-wasm-bindgen v0.5.0
-    Checking dioxus-html v0.5.6
-    Checking dioxus-hot-reload v0.5.6
-    Checking dioxus-web v0.5.6
-    Checking perkpath v0.1.0 (/home/juno/perkpath)
-    Finished `dev` profile [unoptimized + debuginfo] target(s) in 58.93s
+    Checking perkpath v0.1.0 (C:\Users\SpencerNunamakerTrav\perkpath)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.86s
 
 
 >>> COMMAND: cargo test
@@ -248,146 +34,9 @@ running 0 tests
 test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
 
-   Compiling unicode-ident v1.0.22
-   Compiling cfg-if v1.0.4
-   Compiling once_cell v1.21.3
-   Compiling smallvec v1.15.1
-   Compiling pin-project-lite v0.2.16
-   Compiling scopeguard v1.2.0
-   Compiling futures-core v0.3.31
-   Compiling equivalent v1.0.2
-   Compiling allocator-api2 v0.2.21
-   Compiling pin-utils v0.1.0
-   Compiling slab v0.4.11
-   Compiling futures-task v0.3.31
-   Compiling log v0.4.29
-   Compiling lazy_static v1.5.0
-   Compiling serde_core v1.0.228
-   Compiling libm v0.2.15
-   Compiling libc v0.2.180
-   Compiling rustc-hash v1.1.0
-   Compiling nu-ansi-term v0.50.3
-   Compiling longest-increasing-subsequence v0.1.0
-   Compiling zmij v1.0.14
-   Compiling memchr v2.7.6
-   Compiling itoa v1.0.17
-   Compiling proc-macro2 v1.0.105
-   Compiling lock_api v0.4.14
-   Compiling wasm-bindgen-shared v0.2.108
-   Compiling thread_local v1.1.9
-   Compiling sharded-slab v0.1.7
-   Compiling zerocopy v0.8.33
-   Compiling crossbeam-utils v0.8.21
-   Compiling hashbrown v0.16.1
-   Compiling unicode-segmentation v1.12.0
-   Compiling foldhash v0.1.5
-   Compiling parking v2.2.1
-   Compiling futures-channel v0.3.31
-   Compiling fixedbitset v0.4.2
-   Compiling tracing-core v0.1.36
-   Compiling parking_lot_core v0.9.12
-   Compiling cfg-expr v0.15.8
-   Compiling fastrand v2.3.0
-   Compiling byteorder v1.5.0
-   Compiling futures-io v0.3.31
-   Compiling concurrent-queue v2.5.0
-   Compiling atomic-waker v1.1.2
-   Compiling futures-util v0.3.31
-   Compiling futures-lite v2.6.1
-   Compiling hashbrown v0.15.5
-   Compiling parking_lot v0.12.5
-   Compiling hash32 v0.3.1
-   Compiling async-task v4.7.1
-   Compiling stable_deref_trait v1.2.1
-   Compiling piper v0.2.4
-   Compiling spinning v0.1.0
-   Compiling to_method v1.1.0
-   Compiling convert_case v0.6.0
-   Compiling event-listener v5.4.1
-   Compiling heapless v0.8.0
-   Compiling either v1.15.0
-   Compiling intmap v0.7.1
-   Compiling dioxus-debug-cell v0.1.1
-   Compiling quote v1.0.43
-   Compiling generational-box v0.5.6
-   Compiling robust v1.2.0
-   Compiling float_next_after v1.0.0
-   Compiling tracing-log v0.2.0
-   Compiling itertools v0.11.0
-   Compiling syn v2.0.114
-   Compiling indexmap v2.13.0
-   Compiling event-listener-strategy v0.5.4
-   Compiling tracing-subscriber v0.3.22
-   Compiling num-traits v0.2.19
-   Compiling geographiclib-rs v0.2.5
-   Compiling lru v0.12.5
-   Compiling async-channel v2.5.0
-   Compiling blocking v1.6.2
-   Compiling dioxus-config-macro v0.5.6
-   Compiling sledgehammer_utils v0.2.1
-   Compiling petgraph v0.6.5
-   Compiling ordered-float v2.10.1
-   Compiling approx v0.5.1
-   Compiling rstar v0.12.2
-   Compiling spade v2.15.0
-   Compiling ahash v0.8.12
-   Compiling hashbrown v0.14.5
-   Compiling earcutr v0.4.3
-   Compiling geo-types v0.7.18
-   Compiling internment v0.7.5
-   Compiling geo v0.28.0
-   Compiling semver v1.0.27
-   Compiling serde_json v1.0.149
-   Compiling camino v1.2.2
-   Compiling bitflags v2.10.0
-   Compiling rustc_version v0.4.1
-   Compiling interprocess-docfix v1.2.2
-   Compiling wasm-bindgen-macro-support v0.2.108
-   Compiling darling_core v0.21.3
-   Compiling prettyplease v0.2.37
-   Compiling serde_derive v1.0.228
-   Compiling tracing-attributes v0.1.31
-   Compiling futures-macro v0.3.31
-   Compiling thiserror-impl v1.0.69
-   Compiling async-trait v0.1.89
-   Compiling serde_repr v0.1.20
-   Compiling sledgehammer_bindgen_macro v0.5.1
-   Compiling dioxus-html-internal-macro v0.5.6
-   Compiling thiserror v1.0.69
-   Compiling tracing v0.1.44
-   Compiling wasm-bindgen-macro v0.2.108
-   Compiling wasm-bindgen v0.2.108
-   Compiling darling_macro v0.21.3
-   Compiling darling v0.21.3
-   Compiling enumset_derive v0.14.0
-   Compiling serde v1.0.228
-   Compiling js-sys v0.3.85
-   Compiling sledgehammer_bindgen v0.5.0
-   Compiling console_error_panic_hook v0.1.7
-   Compiling slotmap v1.1.1
-   Compiling cargo-platform v0.1.9
-   Compiling serde-value v0.7.0
-   Compiling euclid v0.22.11
-   Compiling keyboard-types v0.7.0
-   Compiling cargo_metadata v0.18.1
-   Compiling enumset v1.1.10
-   Compiling dioxus-core v0.5.6
-   Compiling krates v0.16.10
-   Compiling dioxus-rsx v0.5.6
-   Compiling dioxus-signals v0.5.7
-   Compiling dioxus-hooks v0.5.6
-   Compiling dioxus-core-macro v0.5.6
-   Compiling web-sys v0.3.85
-   Compiling wasm-bindgen-futures v0.4.58
-   Compiling serde-wasm-bindgen v0.5.0
-   Compiling dioxus-html v0.5.6
-   Compiling dioxus-interpreter-js v0.5.6
-   Compiling dioxus-web v0.5.6
-   Compiling dioxus-hot-reload v0.5.6
-   Compiling dioxus v0.5.6
-   Compiling perkpath v0.1.0 (/home/juno/perkpath)
-    Finished `test` profile [unoptimized + debuginfo] target(s) in 16.69s
-     Running unittests src/main.rs (target/debug/deps/perkpath-edccc145477f9123)
+   Compiling perkpath v0.1.0 (C:\Users\SpencerNunamakerTrav\perkpath)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.85s
+     Running unittests src\main.rs (target\debug\deps\perkpath-8749d462b4396fb5.exe)
 
 
 >>> COMMAND: slopchop scan --locality

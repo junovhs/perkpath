@@ -1,13 +1,8 @@
 #![allow(clippy::cast_precision_loss)]
 #![allow(clippy::cast_possible_truncation)]
-#![allow(clippy::manual_midpoint)]
 
 use crate::types::{Location, Point};
-use geo::Point as GeoPoint;
-// Import traits for geometric calculations
-use geo::HaversineBearing;
-use geo::HaversineDestination;
-use geo::HaversineDistance;
+use geo::{HaversineBearing, HaversineDestination, HaversineDistance, Point as GeoPoint};
 
 /// Generates a curved path between two locations using a quadratic-like Bezier approach.
 pub fn generate_curve(start: &Location, end: &Location, resolution: usize) -> Vec<Point> {
@@ -17,20 +12,18 @@ pub fn generate_curve(start: &Location, end: &Location, resolution: usize) -> Ve
     // 1. Basic Geodesy
     let distance_meters = p1.haversine_distance(&p2);
     let bearing = p1.haversine_bearing(p2);
-
+    
     // 2. Control Point Calculation
     // Logic: 15% of distance, but capped/damped for very long routes
     let offset_ratio = (0.15 - (distance_meters / 10_000_000.0)).clamp(0.08, 0.2);
     let offset_dist = distance_meters * offset_ratio;
-
+    
     // Midpoint via basic averaging
-    // Allowed manual_midpoint because lat/lng averages are safe from float overflow
-    let mid_lng = (p1.x() + p2.x()) / 2.0;
-    let mid_lat = (p1.y() + p2.y()) / 2.0;
+    let mid_lng = f64::midpoint(p1.x(), p2.x());
+    let mid_lat = f64::midpoint(p1.y(), p2.y());
     let midpoint = GeoPoint::new(mid_lng, mid_lat);
 
     // Project control point perpendicular to bearing
-    // +90 degrees for the curve offset
     let control_point = midpoint.haversine_destination(bearing + 90.0, offset_dist);
 
     // 3. Generate B-Spline Points (Quadratic Bezier)
@@ -40,14 +33,13 @@ pub fn generate_curve(start: &Location, end: &Location, resolution: usize) -> Ve
         let t = i as f64 / resolution as f64;
         let inv_t = 1.0 - t;
 
-        // Quadratic Bezier Formula: B(t) = (1-t)^2 * P0 + 2(1-t)t * P1 + t^2 * P2
-        let lng = (inv_t.powi(2) * p1.x())
-            + (2.0 * inv_t * t * control_point.x())
-            + (t.powi(2) * p2.x());
+        let lng = (inv_t.powi(2) * p1.x()) 
+                + (2.0 * inv_t * t * control_point.x()) 
+                + (t.powi(2) * p2.x());
 
-        let lat = (inv_t.powi(2) * p1.y())
-            + (2.0 * inv_t * t * control_point.y())
-            + (t.powi(2) * p2.y());
+        let lat = (inv_t.powi(2) * p1.y()) 
+                + (2.0 * inv_t * t * control_point.y()) 
+                + (t.powi(2) * p2.y());
 
         // Use Point::new constructor
         points.push(Point::new(lng as f32, lat as f32));
@@ -61,7 +53,7 @@ pub fn calculate_arrow_rotation(path: &[Point]) -> f32 {
     if path.len() < 2 {
         return 0.0;
     }
-
+    
     // Sample two points near the middle
     let mid_idx = path.len() / 2;
     let p1 = &path[mid_idx.saturating_sub(1)];

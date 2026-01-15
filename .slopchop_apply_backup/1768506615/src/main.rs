@@ -11,9 +11,6 @@ mod parser;
 mod types;
 
 fn main() {
-    // Basic launch. 
-    // Since we disabled default features in Cargo.toml, the devtools client 
-    // (which causes the WebSocket errors) will not be initialized.
     launch(App);
 }
 

@@ -4,7 +4,12 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-dioxus = { version = "0.6", features = ["web"] }
+# Added "html" to restore standard elements in rsx! macro
+# Kept default-features=false to avoid devtools (websocket)
+dioxus = { version = "0.6", default-features = false, features = ["web", "macro", "signals", "hooks", "document", "html", "launch"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 geo = "0.28"
+
+# Explicitly enable required web-sys features
+web-sys = { version = "0.3", features = ["Window", "Location"] }

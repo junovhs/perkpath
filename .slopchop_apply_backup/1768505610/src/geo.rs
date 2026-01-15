@@ -76,7 +76,6 @@ pub fn calculate_arrow_rotation(path: &[Point]) -> f32 {
 
 #[cfg(test)]
 mod tests {
-    #![allow(clippy::unwrap_used)]
     use super::*;
 
     // Helper to create a dummy location
@@ -150,7 +149,6 @@ mod tests {
     #[test]
     fn test_calculate_arrow_rotation_empty() {
         let path = vec![];
-        // Use epsilon comparison for float
-        assert!((calculate_arrow_rotation(&path) - 0.0).abs() < f32::EPSILON);
+        assert_eq!(calculate_arrow_rotation(&path), 0.0);
     }
 }

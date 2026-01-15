@@ -1,5 +1,5 @@
 SLOPCHOP CHECK REPORT
-Generated: 2026-01-15 11:19:04
+Generated: 2026-01-15 11:33:36
 Status: PASSED
 
 === DASHBOARD ===
@@ -11,11 +11,11 @@ Top 5 Cognitive Complexity:
   0    assets\style.css
 
 Top 5 Largest Files (Tokens):
+  1476  src\geo.rs
+  1415  src\types.rs
+  1280  assets\interop.js
   1185  assets\style.css
-  1079  src\components\map_view.rs
-  992   assets\interop.js
-  967   src\types.rs
-  787   src\geo.rs
+  1146  src\components\map_view.rs
 
 === VIOLATIONS ===
 None. Codebase is clean.
@@ -23,17 +23,28 @@ None. Codebase is clean.
 === FULL OUTPUT LOGS ===
 
 >>> COMMAND: cargo clippy --all-targets -- -D warnings -W clippy::pedantic -W clippy::unwrap_used -W clippy::expect_used -A clippy::module_name_repetitions -A clippy::must_use_candidate -A clippy::missing_errors_doc
-    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.29s
+    Checking perkpath v0.1.0 (C:\Users\SpencerNunamakerTrav\perkpath)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.85s
 
 
 >>> COMMAND: cargo test
 
-running 0 tests
+running 9 tests
+test geo::tests::test_calculate_arrow_rotation ... ok
+test parser::tests::test_generate_prompt_empty_routes ... ok
+test parser::tests::test_generate_prompt_structure ... ok
+test types::tests::test_location_defaults ... ok
+test types::tests::test_full_roundtrip ... ok
+test geo::tests::test_calculate_arrow_rotation_empty ... ok
+test types::tests::test_trip_data_defaults ... ok
+test geo::tests::test_generate_curve_endpoints ... ok
+test geo::tests::test_generate_curve_resolution ... ok
 
-test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
 
-    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.23s
+   Compiling perkpath v0.1.0 (C:\Users\SpencerNunamakerTrav\perkpath)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.83s
      Running unittests src\main.rs (target\debug\deps\perkpath-8749d462b4396fb5.exe)
 
 

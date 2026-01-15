@@ -57,7 +57,6 @@ pub fn generate_curve(start: &Location, end: &Location, resolution: usize) -> Ve
 }
 
 /// Calculate the heading (rotation) for an arrow placed at the midpoint.
-#[allow(dead_code)]
 pub fn calculate_arrow_rotation(path: &[Point]) -> f32 {
     if path.len() < 2 {
         return 0.0;
@@ -72,85 +71,4 @@ pub fn calculate_arrow_rotation(path: &[Point]) -> f32 {
     let gp2 = GeoPoint::new(f64::from(p2.x), f64::from(p2.y));
 
     gp1.haversine_bearing(gp2) as f32
-}
-
-#[cfg(test)]
-mod tests {
-    #![allow(clippy::unwrap_used)]
-    use super::*;
-
-    // Helper to create a dummy location
-    fn loc(lat: f64, lng: f64) -> Location {
-        Location {
-            name: "Test".to_string(),
-            lat,
-            lng,
-            is_start: false,
-            is_end: false,
-            label_position: None,
-        }
-    }
-
-    #[test]
-    fn test_generate_curve_resolution() {
-        let start = loc(0.0, 0.0);
-        let end = loc(10.0, 10.0);
-        let resolution = 50;
-        let points = generate_curve(&start, &end, resolution);
-        
-        // Resolution means number of segments, so points = resolution + 1
-        assert_eq!(points.len(), resolution + 1);
-    }
-
-    #[test]
-    fn test_generate_curve_endpoints() {
-        let start = loc(0.0, 0.0);
-        let end = loc(10.0, 10.0);
-        let points = generate_curve(&start, &end, 10);
-        
-        let first = points.first().unwrap();
-        let last = points.last().unwrap();
-        
-        // Check start match (using epsilon for float comparison)
-        assert!((f64::from(first.y) - 0.0).abs() < 1e-5);
-        assert!((f64::from(first.x) - 0.0).abs() < 1e-5);
-        
-        // Check end match
-        assert!((f64::from(last.y) - 10.0).abs() < 1e-5);
-        assert!((f64::from(last.x) - 10.0).abs() < 1e-5);
-    }
-
-    #[test]
-    fn test_calculate_arrow_rotation() {
-        // Points going North: (0,0) -> (0,1)
-        let path = vec![
-            Point::new(0.0, 0.0),
-            Point::new(0.0, 0.5),
-            Point::new(0.0, 1.0)
-        ];
-        
-        let rotation = calculate_arrow_rotation(&path);
-        
-        // Bearing North is 0.0 degrees
-        assert!((rotation - 0.0).abs() < 1.0);
-
-        // Points going East: (0,0) -> (1,0)
-        let path_east = vec![
-            Point::new(0.0, 0.0),
-            Point::new(0.5, 0.0),
-            Point::new(1.0, 0.0)
-        ];
-        
-        let rotation_east = calculate_arrow_rotation(&path_east);
-        
-        // Bearing East is 90.0 degrees
-        assert!((rotation_east - 90.0).abs() < 1.0);
-    }
-
-    #[test]
-    fn test_calculate_arrow_rotation_empty() {
-        let path = vec![];
-        // Use epsilon comparison for float
-        assert!((calculate_arrow_rotation(&path) - 0.0).abs() < f32::EPSILON);
-    }
 }

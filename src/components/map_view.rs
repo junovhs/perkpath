@@ -41,7 +41,7 @@ struct RenderLabel {
     text: String,
     bg_color: String,
     text_color: String,
-    node_size: u32, // Added for leader line threshold calculation
+    node_size: u32,
 }
 
 #[derive(Serialize)]
@@ -53,12 +53,20 @@ struct RenderArrow {
 }
 
 pub fn MapView(props: MapViewProps) -> Element {
-    // 1. Initialize Map on Mount
+    // 1. Initialize Map with Retry Logic
+    // We poll every 200ms for up to 2 seconds if init fails (e.g. script load delay)
     use_effect(move || {
         let _ = eval(r"
-            if (window.init_map) {
-                window.init_map();
-            }
+            let attempts = 0;
+            const initInterval = setInterval(() => {
+                attempts++;
+                if (window.init_map && window.init_map()) {
+                    clearInterval(initInterval);
+                } else if (attempts > 10) {
+                    clearInterval(initInterval);
+                    console.error('Failed to initialize map after 10 attempts');
+                }
+            }, 200);
         ");
     });
 
@@ -76,7 +84,6 @@ pub fn MapView(props: MapViewProps) -> Element {
         let mut labels = Vec::new();
         let mut arrows = Vec::new();
 
-        // O(1) Lookup tables
         let loc_map: HashMap<String, &Location> = data.locations
             .iter()
             .map(|l| (l.name.clone(), l))

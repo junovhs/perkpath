@@ -36,15 +36,18 @@ window.MapRenderer = {
 
     drawArrows: function(arrows, layerGroup) {
         if (!arrows) return;
-        // SVG Arrow Path: Filled Arrowhead with White Outline
+        
+        // UPDATED: Arrow now points UP (North) by default.
+        // This aligns with Leaflet/CSS rotation (0 deg = North).
+        // Added drop shadow filter and white stroke.
         const arrowSvg = `
-            <svg viewBox="0 0 24 24" width="24" height="24" style="overflow: visible;">
+            <svg viewBox="0 0 24 24" width="100%" height="100%" style="overflow: visible;">
                 <defs>
                     <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
                         <feDropShadow dx="0" dy="1" stdDeviation="1.5" flood-color="rgba(0,0,0,0.3)" />
                     </filter>
                 </defs>
-                <path d="M5,4 L20,12 L5,20 L8,12 Z" 
+                <path d="M12,5 L20,20 L12,17 L4,20 Z" 
                       fill="currentColor" 
                       stroke="white" 
                       stroke-width="1.5" 
@@ -54,19 +57,20 @@ window.MapRenderer = {
         `;
 
         arrows.forEach(arrow => {
+            const size = arrow.size || 24;
             const icon = L.divIcon({
                 className: 'arrow-icon',
                 html: `<div style="
                     transform: rotate(${arrow.rotation}deg);
                     color: ${arrow.color};
-                    width: 24px; 
-                    height: 24px;
+                    width: ${size}px; 
+                    height: ${size}px;
                     display: flex;
                     align-items: center;
                     justify-content: center;
                 ">${arrowSvg}</div>`,
-                iconSize: [24, 24],
-                iconAnchor: [12, 12]
+                iconSize: [size, size],
+                iconAnchor: [size / 2, size / 2]
             });
             L.marker([arrow.lat, arrow.lng], { icon: icon }).addTo(layerGroup);
         });
@@ -89,7 +93,6 @@ window.MapRenderer = {
     drawLabels: function(labels, layerGroup, allLabels, map, leaderLinesGroup, activeLeaderLines) {
         if (!labels) return;
         labels.forEach(label => {
-            // Use the font_size from Rust, fallback to 12 if missing
             const fontSize = label.font_size || 12;
             
             const icon = L.divIcon({
@@ -97,13 +100,14 @@ window.MapRenderer = {
                 html: `<div class="label-inner" style="
                     background: ${label.bg_color}; 
                     color: ${label.text_color}; 
-                    padding: 4px 8px; 
-                    border-radius: 4px; 
+                    padding: 6px 10px; 
+                    border-radius: 6px; 
                     font-size: ${fontSize}px; 
-                    font-weight: bold;
+                    font-weight: 700;
                     white-space: nowrap;
-                    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+                    box-shadow: 0 3px 8px rgba(0,0,0,0.2);
                     cursor: grab;
+                    font-family: var(--font-sans);
                 ">${label.text}</div>`,
                 iconSize: [0, 0],
                 iconAnchor: [0, 0] 

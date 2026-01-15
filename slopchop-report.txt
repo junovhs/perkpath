@@ -1,5 +1,5 @@
 SLOPCHOP CHECK REPORT
-Generated: 2026-01-14 18:26:08
+Generated: 2026-01-14 18:29:28
 Status: PASSED
 
 === DASHBOARD ===
@@ -24,7 +24,7 @@ None. Codebase is clean.
 
 >>> COMMAND: cargo clippy --all-targets -- -D warnings -W clippy::pedantic -W clippy::unwrap_used -W clippy::expect_used -A clippy::module_name_repetitions -A clippy::must_use_candidate -A clippy::missing_errors_doc
     Checking perkpath v0.1.0 (C:\Users\SpencerNunamakerTrav\perkpath)
-    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.71s
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.56s
 
 
 >>> COMMAND: cargo test
@@ -35,7 +35,7 @@ test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fini
 
 
    Compiling perkpath v0.1.0 (C:\Users\SpencerNunamakerTrav\perkpath)
-    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.62s
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.55s
      Running unittests src\main.rs (target\debug\deps\perkpath-f32c97cc718d5a2e.exe)
 
 

@@ -1,0 +1,79 @@
+/* Map-Specific Styles (Labels, Markers, Legend) */
+
+/* Legend */
+.map-legend {
+    position: absolute;
+    bottom: 30px;
+    right: 30px;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    min-width: 180px;
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    cursor: grab;
+    font-family: var(--font-sans);
+}
+
+.map-legend:active {
+    cursor: grabbing;
+}
+
+.legend-header {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #1a1d23;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    pointer-events: none;
+}
+
+.legend-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+}
+
+.legend-row:last-child { margin-bottom: 0; }
+
+.legend-line {
+    width: 32px;
+    height: 4px;
+    border-radius: 2px;
+}
+
+.legend-row span {
+    font-size: 0.85rem;
+    color: #333;
+    font-weight: 500;
+}
+
+/* Map Interactions & Markers */
+.arrow-icon {
+    background: transparent !important;
+    border: none !important;
+}
+
+.custom-label {
+    background: transparent !important;
+    border: none !important;
+}
+
+.custom-label .label-inner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: max-content;
+    /* Move label UP so it sits above the node by default */
+    transform: translate(-50%, -130%); 
+}
+
+.custom-label:hover .label-inner {
+    transform: translate(-50%, -130%) scale(1.05);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    transition: transform 0.1s;
+}

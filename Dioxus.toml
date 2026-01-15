@@ -1,0 +1,10 @@
+[application]
+name = "perkpath"
+default_platform = "web"
+
+[web.app]
+title = "PerkPath"
+
+[web.resource]
+style = ["assets/style.css"]
+script = ["assets/interop.js"]

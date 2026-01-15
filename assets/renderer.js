@@ -11,10 +11,17 @@ window.MapRenderer = {
         this.drawArrows(data.arrows, layerGroup);
         this.drawNodes(data.nodes, layerGroup);
         this.drawLabels(data.labels, layerGroup, allLabels, map, leaderLinesGroup, activeLeaderLines);
+        
+        // Delegate to Legend Module
+        if (window.MapLegend) {
+            window.MapLegend.draw(data.legend);
+        }
 
         if (data.nodes && data.nodes.length > 0) {
             const bounds = data.nodes.map(n => [n.lat, n.lng]);
-            map.fitBounds(bounds, { padding: [50, 50] });
+            const padX = window.innerWidth * 0.15;
+            const padY = window.innerHeight * 0.15;
+            map.fitBounds(bounds, { padding: [padX, padY] });
             window.show_toast("Map Rendered!", "success");
         }
     },
@@ -37,7 +44,6 @@ window.MapRenderer = {
     drawArrows: function(arrows, layerGroup) {
         if (!arrows) return;
         
-        // SVG Arrow: Points North (Up)
         const arrowSvg = `
             <svg viewBox="0 0 24 24" width="100%" height="100%" style="overflow: visible;">
                 <defs>
@@ -70,7 +76,15 @@ window.MapRenderer = {
                 iconSize: [size, size],
                 iconAnchor: [size / 2, size / 2]
             });
-            L.marker([arrow.lat, arrow.lng], { icon: icon }).addTo(layerGroup);
+            const marker = L.marker([arrow.lat, arrow.lng], { icon: icon }).addTo(layerGroup);
+            
+            // Ctrl+Click to Delete
+            marker.on('click', (e) => {
+                if (e.originalEvent.ctrlKey) {
+                    layerGroup.removeLayer(marker);
+                    L.DomEvent.stopPropagation(e);
+                }
+            });
         });
     },
 
@@ -106,11 +120,6 @@ window.MapRenderer = {
                     box-shadow: 0 3px 8px rgba(0,0,0,0.2);
                     cursor: grab;
                     font-family: var(--font-sans);
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    min-width: max-content;
-                    transform: translate(-50%, -50%); /* Center on coordinate */
                 ">${label.text}</div>`,
                 iconSize: [0, 0],
                 iconAnchor: [0, 0] 
@@ -129,6 +138,19 @@ window.MapRenderer = {
             };
 
             allLabels.add(marker);
+
+            // Ctrl+Click to Delete
+            marker.on('click', (e) => {
+                if (e.originalEvent.ctrlKey) {
+                    if (activeLeaderLines.has(marker)) {
+                        leaderLinesGroup.removeLayer(activeLeaderLines.get(marker));
+                        activeLeaderLines.delete(marker);
+                    }
+                    allLabels.delete(marker);
+                    layerGroup.removeLayer(marker);
+                    L.DomEvent.stopPropagation(e);
+                }
+            });
 
             marker.on('drag', () => {
                 if (window.LeaderLineManager) {

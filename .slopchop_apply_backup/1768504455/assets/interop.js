@@ -52,28 +52,7 @@ window.render_map_data = function(json_data) {
         });
     }
 
-    // 2. Draw Arrows (New)
-    if (data.arrows) {
-        data.arrows.forEach(arrow => {
-            const icon = L.divIcon({
-                className: 'arrow-icon',
-                html: `<div style="
-                    transform: rotate(${arrow.rotation}deg);
-                    color: ${arrow.color};
-                    font-size: 20px;
-                    line-height: 20px;
-                    text-align: center;
-                    filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3));
-                    margin-top: -10px; margin-left: -10px;
-                ">?</div>`,
-                iconSize: [20, 20],
-                iconAnchor: [10, 10]
-            });
-            L.marker([arrow.lat, arrow.lng], { icon: icon }).addTo(layerGroup);
-        });
-    }
-
-    // 3. Draw Nodes (Dots)
+    // 2. Draw Nodes (Dots)
     if (data.nodes) {
         data.nodes.forEach(node => {
             L.circleMarker([node.lat, node.lng], {
@@ -87,11 +66,11 @@ window.render_map_data = function(json_data) {
         });
     }
 
-    // 4. Draw Labels
+    // 3. Draw Labels
     if (data.labels) {
         data.labels.forEach(label => {
             const icon = L.divIcon({
-                className: 'custom-label', 
+                className: 'custom-label', // We will style this via global CSS injection or inline
                 html: `<div style="
                     background: ${label.bg_color}; 
                     color: ${label.text_color}; 
@@ -101,17 +80,17 @@ window.render_map_data = function(json_data) {
                     font-weight: bold;
                     white-space: nowrap;
                     box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-                    transform: translate(-50%, -50%);
+                    transform: translate(-50%, -50%); /* Center over point */
                 ">${label.text}</div>`,
-                iconSize: [0, 0], 
-                iconAnchor: [0, 0]
+                iconSize: [0, 0], // Let CSS handle size
+                iconAnchor: [0, 0] // Centered via transform
             });
             
             L.marker([label.lat, label.lng], { icon: icon }).addTo(layerGroup);
         });
     }
 
-    // 5. Fit Bounds
+    // 4. Fit Bounds
     if (data.nodes && data.nodes.length > 0) {
         const bounds = data.nodes.map(n => [n.lat, n.lng]);
         map.fitBounds(bounds, { padding: [50, 50] });

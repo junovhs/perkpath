@@ -18,7 +18,7 @@ rustup target add wasm32-unknown-unknown
 
 # COMPILE from source to ensure GLIBC compatibility with Vercel's OS
 # This takes longer (3-5 mins) but is the most robust solution.
-cargo install dioxus-cli --locked
+cargo install dioxus-cli@0.5 --locked
 
 # Build
 dx build --release --web

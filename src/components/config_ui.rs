@@ -20,7 +20,7 @@ pub fn ConfigUI(props: ConfigUIProps) -> Element {
                     input { 
                         r#type: "range", 
                         min: "10", 
-                        max: "24", 
+                        max: "32", 
                         value: "{config.read().label_style.font_size}",
                         oninput: move |evt| {
                             if let Ok(val) = evt.value().parse::<u32>() {
@@ -52,10 +52,10 @@ pub fn ConfigUI(props: ConfigUIProps) -> Element {
 
             // Section: Node Styling
             div { class: "panel",
-                h2 { "Nodes" }
+                h2 { "Nodes & Arrows" }
                 
                 div { class: "config-row",
-                    label { "Size" }
+                    label { "Node Size" }
                     input { 
                         r#type: "range", 
                         min: "4", 
@@ -68,6 +68,22 @@ pub fn ConfigUI(props: ConfigUIProps) -> Element {
                         }
                     }
                     span { "{config.read().node_style.size}px" }
+                }
+
+                div { class: "config-row",
+                    label { "Arrow Size" }
+                    input { 
+                        r#type: "range", 
+                        min: "10", 
+                        max: "50", 
+                        value: "{config.read().node_style.arrow_size}",
+                        oninput: move |evt| {
+                            if let Ok(val) = evt.value().parse::<u32>() {
+                                config.write().node_style.arrow_size = val;
+                            }
+                        }
+                    }
+                    span { "{config.read().node_style.arrow_size}px" }
                 }
 
                 div { class: "config-row",

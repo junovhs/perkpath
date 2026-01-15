@@ -51,6 +51,7 @@ struct RenderArrow {
     lng: f32,
     rotation: f32,
     color: String,
+    size: u32, // Added size field
 }
 
 pub fn MapView(props: MapViewProps) -> Element {
@@ -139,6 +140,7 @@ fn build_map_json(data: &TripData, config: &AppConfig) -> String {
                     lng: midpoint.x,
                     rotation,
                     color: color.clone(),
+                    size: config.node_style.arrow_size, // Pass dynamic size
                 });
             }
 

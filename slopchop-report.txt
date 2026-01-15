@@ -1,21 +1,21 @@
 SLOPCHOP CHECK REPORT
-Generated: 2026-01-15 12:05:19
+Generated: 2026-01-15 12:13:29
 Status: PASSED
 
 === DASHBOARD ===
 Top 5 Cognitive Complexity:
   17   src\components\map_view.rs
+  1    assets\interop.js
   1    src\geo.rs
-  0    assets\interop.js
   0    assets\leader-lines.js
-  0    assets\style.css
+  0    assets\renderer.js
 
 Top 5 Largest Files (Tokens):
   1476  src\geo.rs
   1415  src\types.rs
-  1303  assets\interop.js
-  1185  assets\style.css
   1146  src\components\map_view.rs
+  1098  assets\ui.css
+  991   src\components\sidebar.rs
 
 === VIOLATIONS ===
 None. Codebase is clean.
@@ -23,20 +23,20 @@ None. Codebase is clean.
 === FULL OUTPUT LOGS ===
 
 >>> COMMAND: cargo clippy --all-targets -- -D warnings -W clippy::pedantic -W clippy::unwrap_used -W clippy::expect_used -A clippy::module_name_repetitions -A clippy::must_use_candidate -A clippy::missing_errors_doc
-    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.24s
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.25s
 
 
 >>> COMMAND: cargo test
 
 running 9 tests
-test geo::tests::test_generate_curve_endpoints ... ok
-test geo::tests::test_calculate_arrow_rotation ... ok
 test geo::tests::test_calculate_arrow_rotation_empty ... ok
-test geo::tests::test_generate_curve_resolution ... ok
-test parser::tests::test_generate_prompt_structure ... ok
-test types::tests::test_trip_data_defaults ... ok
-test types::tests::test_location_defaults ... ok
+test geo::tests::test_calculate_arrow_rotation ... ok
+test geo::tests::test_generate_curve_endpoints ... ok
 test parser::tests::test_generate_prompt_empty_routes ... ok
+test parser::tests::test_generate_prompt_structure ... ok
+test types::tests::test_location_defaults ... ok
+test types::tests::test_trip_data_defaults ... ok
+test geo::tests::test_generate_curve_resolution ... ok
 test types::tests::test_full_roundtrip ... ok
 
 test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s

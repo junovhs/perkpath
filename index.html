@@ -7,6 +7,7 @@
   
   <!-- Trunk: Bundle CSS -->
   <link data-trunk rel="css" href="assets/style.css" />
+  <link data-trunk rel="css" href="assets/ui.css" />
   
   <!-- Trunk: Copy Assets Folder (Preserves JS files for script tags below) -->
   <link data-trunk rel="copy-dir" href="assets" />
@@ -22,7 +23,8 @@
   
   <!-- Load Logic First -->
   <script src="assets/leader-lines.js"></script>
-  <!-- Load Bridge Second -->
+  <script src="assets/renderer.js"></script>
+  <!-- Load Bridge Last -->
   <script src="assets/interop.js"></script>
 </body>
 </html>

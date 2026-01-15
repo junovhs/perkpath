@@ -1,31 +1,28 @@
 // PerkPath - Leader Line Logic
-// Extracted to satisfy the Law of Atomicity
+// Optimized for 60FPS "Game Loop"
 
 window.LeaderLineManager = {
-    // Determine the closest point on a rectangle to a target point
     findClosestPointOnRect: function(rect, point) {
         const x = Math.max(rect.left, Math.min(point.x, rect.right));
         const y = Math.max(rect.top, Math.min(point.y, rect.bottom));
         return { x, y };
     },
 
-    // Main update function
     updateLine: function(marker, map, lineGroup, activeLinesMap) {
         if (!marker.nodeData || !map || !lineGroup) return;
 
-        const nodeLat = marker.nodeData.lat;
-        const nodeLng = marker.nodeData.lng;
-        const nodeSize = marker.nodeData.size;
+        const { lat, lng, size } = marker.nodeData;
 
-        // 1. Get Geometry
-        const nodePoint = map.latLngToContainerPoint([nodeLat, nodeLng]);
-        const element = marker.getElement();
+        // Fast Geometry Lookup
+        const nodePoint = map.latLngToContainerPoint([lat, lng]);
         
+        // Element lookup can be expensive, but necessary for dynamic labels
+        const element = marker.getElement();
         if (!element) return;
+        
         const inner = element.querySelector('.label-inner');
         if (!inner) return;
 
-        // 2. Calculate Label Rect
         const labelRect = inner.getBoundingClientRect();
         const mapRect = map.getContainer().getBoundingClientRect();
 
@@ -36,44 +33,47 @@ window.LeaderLineManager = {
             bottom: labelRect.bottom - mapRect.top
         };
 
-        // 3. Calculate Distance
         const closest = this.findClosestPointOnRect(rect, nodePoint);
         const dx = nodePoint.x - closest.x;
         const dy = nodePoint.y - closest.y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
+        const distSq = dx * dx + dy * dy; // Use squared distance to avoid Math.sqrt if possible
+        
+        const threshold = size * 2.5 + 5;
+        const shouldShow = distSq > (threshold * threshold);
 
-        // 4. Threshold Logic (2.5x node size)
-        const threshold = nodeSize * 2.5 + 5;
-
-        // 5. Update DOM
-        if (activeLinesMap.has(marker)) {
-            lineGroup.removeLayer(activeLinesMap.get(marker));
-            activeLinesMap.delete(marker);
-        }
-
-        if (dist > threshold) {
+        if (shouldShow) {
             const startLatLng = map.containerPointToLatLng(nodePoint);
             const endLatLng = map.containerPointToLatLng(closest);
+            const points = [startLatLng, endLatLng];
 
-            const line = L.polyline([startLatLng, endLatLng], {
-                color: '#666',
-                weight: 1,
-                dashArray: '4, 4',
-                opacity: 0.6
-            }).addTo(lineGroup);
-
-            activeLinesMap.set(marker, line);
+            if (activeLinesMap.has(marker)) {
+                // HOT PATH: Update existing line (Zero Allocation)
+                activeLinesMap.get(marker).setLatLngs(points);
+            } else {
+                // COLD PATH: Create new line
+                const line = L.polyline(points, {
+                    color: '#666',
+                    weight: 1,
+                    dashArray: '4, 4',
+                    opacity: 0.6,
+                    interactive: false // Ignore mouse events for performance
+                }).addTo(lineGroup);
+                activeLinesMap.set(marker, line);
+            }
+        } else {
+            if (activeLinesMap.has(marker)) {
+                // Cleanup
+                lineGroup.removeLayer(activeLinesMap.get(marker));
+                activeLinesMap.delete(marker);
+            }
         }
     },
 
-    updateAll: function(map, lineGroup, activeLinesMap) {
+    updateAll: function(map, lineGroup, activeLinesMap, allLabels) {
         if (!map || !lineGroup) return;
         
-        // CRITICAL FIX: Create a static array of keys to iterate.
-        // Iterating the Map directly while deleting/adding keys causes an infinite loop.
-        const markers = Array.from(activeLinesMap.keys());
-        
-        markers.forEach(marker => {
+        // Iterate over ALL labels to ensure lines appear/disappear correctly
+        allLabels.forEach(marker => {
             this.updateLine(marker, map, lineGroup, activeLinesMap);
         });
     }

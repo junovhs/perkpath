@@ -56,8 +56,7 @@ window.init_map = function() {
 
     setTimeout(() => { map.invalidateSize(); }, 100);
 
-    // CHANGED: 'zoom' -> 'zoomend' to prevent layout thrashing and browser freeze
-    map.on('zoomend', () => {
+    map.on('zoom', () => {
         if (window.LeaderLineManager) {
             window.LeaderLineManager.updateAll(map, leaderLinesGroup, activeLeaderLines);
         }

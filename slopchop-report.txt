@@ -1,5 +1,5 @@
 SLOPCHOP CHECK REPORT
-Generated: 2026-01-15 12:13:29
+Generated: 2026-01-15 12:23:12
 Status: PASSED
 
 === DASHBOARD ===
@@ -23,7 +23,8 @@ None. Codebase is clean.
 === FULL OUTPUT LOGS ===
 
 >>> COMMAND: cargo clippy --all-targets -- -D warnings -W clippy::pedantic -W clippy::unwrap_used -W clippy::expect_used -A clippy::module_name_repetitions -A clippy::must_use_candidate -A clippy::missing_errors_doc
-    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.25s
+    Checking perkpath v0.1.0 (C:\Users\SpencerNunamakerTrav\perkpath)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.81s
 
 
 >>> COMMAND: cargo test
@@ -31,18 +32,19 @@ None. Codebase is clean.
 running 9 tests
 test geo::tests::test_calculate_arrow_rotation_empty ... ok
 test geo::tests::test_calculate_arrow_rotation ... ok
+test geo::tests::test_generate_curve_resolution ... ok
 test geo::tests::test_generate_curve_endpoints ... ok
 test parser::tests::test_generate_prompt_empty_routes ... ok
 test parser::tests::test_generate_prompt_structure ... ok
 test types::tests::test_location_defaults ... ok
 test types::tests::test_trip_data_defaults ... ok
-test geo::tests::test_generate_curve_resolution ... ok
 test types::tests::test_full_roundtrip ... ok
 
 test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
 
-    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.20s
+   Compiling perkpath v0.1.0 (C:\Users\SpencerNunamakerTrav\perkpath)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.26s
      Running unittests src\main.rs (target\debug\deps\perkpath-39bcb6de3bfe9a9d.exe)
 
 

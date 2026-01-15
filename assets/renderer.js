@@ -37,9 +37,7 @@ window.MapRenderer = {
     drawArrows: function(arrows, layerGroup) {
         if (!arrows) return;
         
-        // UPDATED: Arrow now points UP (North) by default.
-        // This aligns with Leaflet/CSS rotation (0 deg = North).
-        // Added drop shadow filter and white stroke.
+        // SVG Arrow: Points North (Up)
         const arrowSvg = `
             <svg viewBox="0 0 24 24" width="100%" height="100%" style="overflow: visible;">
                 <defs>
@@ -108,6 +106,11 @@ window.MapRenderer = {
                     box-shadow: 0 3px 8px rgba(0,0,0,0.2);
                     cursor: grab;
                     font-family: var(--font-sans);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    min-width: max-content;
+                    transform: translate(-50%, -50%); /* Center on coordinate */
                 ">${label.text}</div>`,
                 iconSize: [0, 0],
                 iconAnchor: [0, 0] 

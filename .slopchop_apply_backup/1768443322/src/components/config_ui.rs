@@ -1,7 +1,7 @@
 use dioxus::prelude::*;
 use crate::types::AppConfig;
 
-#[derive(PartialEq, Props, Clone, Copy)]
+#[derive(PartialEq, Props, Clone)]
 pub struct ConfigUIProps {
     pub config: Signal<AppConfig>,
 }

@@ -1,7 +1,6 @@
 use dioxus::prelude::*;
 use crate::types::{AppConfig, TripData};
 use crate::parser::generate_prompt;
-use crate::components::config_ui::ConfigUI;
 
 #[derive(PartialEq, Props, Clone)]
 pub struct SidebarProps {
@@ -9,13 +8,14 @@ pub struct SidebarProps {
     pub trip_data: Signal<TripData>,
 }
 
+#[component]
 pub fn Sidebar(mut props: SidebarProps) -> Element {
-    const TABS: &[&str] = &["input", "prompt", "render", "config"];
-
     let mut active_tab = use_signal(|| "input".to_string());
     let mut itinerary_input = use_signal(String::new);
     let mut generated_prompt = use_signal(String::new);
     let mut json_input = use_signal(String::new);
+
+    let tabs = vec!["input", "prompt", "render", "config"];
 
     rsx! {
         aside { class: "sidebar",
@@ -25,10 +25,10 @@ pub fn Sidebar(mut props: SidebarProps) -> Element {
             }
 
             nav { class: "tabs",
-                for tab in TABS {
+                for tab in tabs {
                     button {
                         class: if active_tab() == *tab { "tab active" } else { "tab" },
-                        onclick: move |_| active_tab.set((*tab).to_string()),
+                        onclick: move |_| active_tab.set(tab.to_string()),
                         "{tab.to_uppercase()}"
                     }
                 }
@@ -78,7 +78,7 @@ pub fn Sidebar(mut props: SidebarProps) -> Element {
                         onclick: move |_| {
                             match serde_json::from_str::<TripData>(&json_input()) {
                                 Ok(data) => props.trip_data.set(data),
-                                Err(e) => println!("JSON Error: {e}"),
+                                Err(e) => println!("JSON Error: {}", e),
                             }
                         },
                         "Render Map"
@@ -86,9 +86,9 @@ pub fn Sidebar(mut props: SidebarProps) -> Element {
                 }
             }
 
-            // CONFIG TAB
+            // CONFIG TAB (Placeholder for now)
             div { class: if active_tab() == "config" { "tab-content active" } else { "tab-content" },
-                ConfigUI { config: props.config }
+                div { class: "panel", h2 { "Configuration" }, p { "Settings coming soon..." } }
             }
         }
     }

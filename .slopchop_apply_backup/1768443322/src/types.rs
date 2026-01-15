@@ -31,11 +31,11 @@ pub struct NodeStyle {
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct NodeColorConfig {
     #[serde(rename = "startColor")]
-    pub start: String,
+    pub start_color: String,
     #[serde(rename = "endColor")]
-    pub end: String,
+    pub end_color: String,
     #[serde(rename = "defaultColor")]
-    pub default: String,
+    pub default_color: String,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -104,7 +104,7 @@ impl Default for AppConfig {
             ],
             label_style: LabelStyle { font_size: 14, bg_color: "#ffffff".into(), text_color: "#1a1d23".into() },
             node_style: NodeStyle { size: 12, border_width: 3, arrow_size: 20 },
-            node_colors: NodeColorConfig { start: "#22c55e".into(), end: "#ef4444".into(), default: "#f97316".into() },
+            node_colors: NodeColorConfig { start_color: "#22c55e".into(), end_color: "#ef4444".into(), default_color: "#f97316".into() },
             legend_style: LegendStyle { scale: 1.0, position: Point { x: 30.0, y: 30.0 } },
             active_preset: "standard".into(),
         }

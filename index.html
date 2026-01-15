@@ -10,7 +10,7 @@
   <link data-trunk rel="css" href="assets/ui.css" />
   <link data-trunk rel="css" href="assets/map.css" />
   
-  <!-- Trunk: Copy Assets Folder (Preserves JS files for script tags below) -->
+  <!-- Trunk: Copy Assets Folder -->
   <link data-trunk rel="copy-dir" href="assets" />
   
   <!-- Trunk: Copy Redirects for Cloudflare -->
@@ -21,12 +21,6 @@
   <link data-trunk rel="rust" data-wasm-opt="z" />
   
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  
-  <!-- Load Logic First -->
-  <script src="assets/leader-lines.js"></script>
-  <script src="assets/legend.js"></script>
-  <script src="assets/renderer.js"></script>
-  <!-- Load Bridge Last -->
-  <script src="assets/interop.js"></script>
+  <script src="assets/map-bridge.js"></script>
 </body>
 </html>

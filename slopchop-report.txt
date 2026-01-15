@@ -1,21 +1,21 @@
 SLOPCHOP CHECK REPORT
-Generated: 2026-01-15 14:15:09
+Generated: 2026-01-15 15:25:16
 Status: PASSED
 
 === DASHBOARD ===
 Top 5 Cognitive Complexity:
-  6    src\components\map_view.rs
+  14   src\components\map_view.rs
+  4    src\components\toast.rs
+  3    src\components\legend.rs
   1    assets\interop.js
-  1    src\geo.rs
-  0    assets\leader-lines.js
-  0    assets\legend.js
+  1    src\components\map_commands.rs
 
 Top 5 Largest Files (Tokens):
   1476  src\geo.rs
   1415  src\types.rs
-  1382  src\components\map_view.rs
   1233  assets\renderer.js
-  1098  assets\ui.css
+  1187  src\components\map_commands.rs
+  1105  src\components\map_view.rs
 
 === VIOLATIONS ===
 None. Codebase is clean.
@@ -24,28 +24,28 @@ None. Codebase is clean.
 
 >>> COMMAND: cargo clippy --all-targets -- -D warnings -W clippy::pedantic -W clippy::unwrap_used -W clippy::expect_used -A clippy::module_name_repetitions -A clippy::must_use_candidate -A clippy::missing_errors_doc
     Checking perkpath v0.1.0 (C:\Users\SpencerNunamakerTrav\perkpath)
-    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.78s
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.94s
 
 
 >>> COMMAND: cargo test
 
 running 9 tests
+test geo::tests::test_calculate_arrow_rotation_empty ... ok
 test geo::tests::test_calculate_arrow_rotation ... ok
-test parser::tests::test_generate_prompt_empty_routes ... ok
 test types::tests::test_location_defaults ... ok
 test geo::tests::test_generate_curve_resolution ... ok
-test parser::tests::test_generate_prompt_structure ... ok
-test types::tests::test_full_roundtrip ... ok
-test types::tests::test_trip_data_defaults ... ok
-test geo::tests::test_calculate_arrow_rotation_empty ... ok
 test geo::tests::test_generate_curve_endpoints ... ok
+test types::tests::test_full_roundtrip ... ok
+test parser::tests::test_generate_prompt_structure ... ok
+test types::tests::test_trip_data_defaults ... ok
+test parser::tests::test_generate_prompt_empty_routes ... ok
 
 test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
 
    Compiling perkpath v0.1.0 (C:\Users\SpencerNunamakerTrav\perkpath)
-    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.47s
-     Running unittests src\main.rs (target\debug\deps\perkpath-39bcb6de3bfe9a9d.exe)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.97s
+     Running unittests src\main.rs (target\debug\deps\perkpath-c60f8769ec98906f.exe)
 
 
 >>> COMMAND: slopchop scan --locality

@@ -1,21 +1,21 @@
 SLOPCHOP CHECK REPORT
-Generated: 2026-01-14 18:15:33
+Generated: 2026-01-14 18:26:08
 Status: PASSED
 
 === DASHBOARD ===
 Top 5 Cognitive Complexity:
+  2    src\components\map_view.rs
+  1    src\geo.rs
   0    assets\interop.js
   0    assets\style.css
   0    build.sh
-  0    Cargo.toml
-  0    Dioxus.toml
 
 Top 5 Largest Files (Tokens):
   1185  assets\style.css
-  937   src\types.rs
+  967   src\types.rs
   749   src\components\sidebar.rs
+  698   src\geo.rs
   513   src\parser.rs
-  332   slopchop.toml
 
 === VIOLATIONS ===
 None. Codebase is clean.
@@ -24,7 +24,7 @@ None. Codebase is clean.
 
 >>> COMMAND: cargo clippy --all-targets -- -D warnings -W clippy::pedantic -W clippy::unwrap_used -W clippy::expect_used -A clippy::module_name_repetitions -A clippy::must_use_candidate -A clippy::missing_errors_doc
     Checking perkpath v0.1.0 (C:\Users\SpencerNunamakerTrav\perkpath)
-    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.87s
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.71s
 
 
 >>> COMMAND: cargo test
@@ -35,7 +35,7 @@ test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fini
 
 
    Compiling perkpath v0.1.0 (C:\Users\SpencerNunamakerTrav\perkpath)
-    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.98s
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.62s
      Running unittests src\main.rs (target\debug\deps\perkpath-f32c97cc718d5a2e.exe)
 
 

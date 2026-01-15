@@ -50,12 +50,6 @@ pub struct Point {
     pub y: f32,
 }
 
-impl Point {
-    pub fn new(x: f32, y: f32) -> Self {
-        Self { x, y }
-    }
-}
-
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct AppConfig {
     #[serde(rename = "routeTypes")]

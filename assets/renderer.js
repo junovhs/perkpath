@@ -1,9 +1,7 @@
 // PerkPath - Map Rendering Logic
-// Extracted to satisfy Law of Atomicity
 
 window.MapRenderer = {
     render: function(data, layerGroup, allLabels, leaderLinesGroup, activeLeaderLines, map) {
-        // Reset State
         layerGroup.clearLayers();
         leaderLinesGroup.clearLayers();
         activeLeaderLines.clear();
@@ -38,20 +36,28 @@ window.MapRenderer = {
 
     drawArrows: function(arrows, layerGroup) {
         if (!arrows) return;
+        // SVG Arrow Path (Simple Triangle)
+        const arrowSvg = `
+            <svg viewBox="0 0 24 24" width="24" height="24" style="overflow: visible;">
+                <path d="M2,2 L22,12 L2,22" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        `;
+
         arrows.forEach(arrow => {
             const icon = L.divIcon({
                 className: 'arrow-icon',
                 html: `<div style="
                     transform: rotate(${arrow.rotation}deg);
                     color: ${arrow.color};
-                    font-size: 20px;
-                    line-height: 20px;
-                    text-align: center;
+                    width: 24px; 
+                    height: 24px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
                     filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3));
-                    margin-top: -10px; margin-left: -10px;
-                ">?</div>`,
-                iconSize: [20, 20],
-                iconAnchor: [10, 10]
+                ">${arrowSvg}</div>`,
+                iconSize: [24, 24],
+                iconAnchor: [12, 12]
             });
             L.marker([arrow.lat, arrow.lng], { icon: icon }).addTo(layerGroup);
         });

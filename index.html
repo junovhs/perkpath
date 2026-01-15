@@ -1,15 +1,17 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-<head>
-  <title>PerkPath</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <link rel="stylesheet" href="assets/style.css" />
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
-</head>
-<body>
-  <div id="main"></div>
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="assets/interop.js"></script>
-</body>
+    <head>
+        <meta charset="utf-8" />
+        <title>PerkPath</title>
+        <link
+            rel="stylesheet"
+            href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        />
+        <link data-trunk rel="css" href="assets/style.css" />
+    </head>
+    <body>
+        <div id="main"></div>
+        <link data-trunk rel="rust" data-wasm-opt="z" />
+        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    </body>
 </html>

@@ -1,8 +1,5 @@
-#![allow(clippy::cast_precision_loss)]
-#![allow(clippy::cast_possible_truncation)]
-
 use crate::types::{Location, Point};
-use geo::{HaversineBearing, HaversineDestination, HaversineDistance, Point as GeoPoint};
+use geo::{Bearing, HaversineDestination, HaversineDistance, Point as GeoPoint};
 
 /// Generates a curved path between two locations using a quadratic-like Bezier approach.
 pub fn generate_curve(start: &Location, end: &Location, resolution: usize) -> Vec<Point> {
@@ -11,22 +8,23 @@ pub fn generate_curve(start: &Location, end: &Location, resolution: usize) -> Ve
 
     // 1. Basic Geodesy
     let distance_meters = p1.haversine_distance(&p2);
-    let bearing = p1.haversine_bearing(p2);
+    let bearing = p1.bearing(p2);
     
     // 2. Control Point Calculation
     // Logic: 15% of distance, but capped/damped for very long routes
     let offset_ratio = (0.15 - (distance_meters / 10_000_000.0)).clamp(0.08, 0.2);
     let offset_dist = distance_meters * offset_ratio;
     
-    // Midpoint via basic averaging
-    let mid_lng = f64::midpoint(p1.x(), p2.x());
-    let mid_lat = f64::midpoint(p1.y(), p2.y());
+    // Midpoint via basic averaging (sufficient for visual curves)
+    let mid_lng = (p1.x() + p2.x()) / 2.0;
+    let mid_lat = (p1.y() + p2.y()) / 2.0;
     let midpoint = GeoPoint::new(mid_lng, mid_lat);
 
     // Project control point perpendicular to bearing
     let control_point = midpoint.haversine_destination(bearing + 90.0, offset_dist);
 
     // 3. Generate B-Spline Points (Quadratic Bezier)
+    // P(t) = (1-t)^2 * P0 + 2(1-t)t * P1 + t^2 * P2
     let mut points = Vec::with_capacity(resolution);
 
     for i in 0..=resolution {
@@ -41,8 +39,7 @@ pub fn generate_curve(start: &Location, end: &Location, resolution: usize) -> Ve
                 + (2.0 * inv_t * t * control_point.y()) 
                 + (t.powi(2) * p2.y());
 
-        // Use Point::new constructor
-        points.push(Point::new(lng as f32, lat as f32));
+        points.push(Point { x: lng as f32, y: lat as f32 });
     }
 
     points
@@ -62,5 +59,5 @@ pub fn calculate_arrow_rotation(path: &[Point]) -> f32 {
     let gp1 = GeoPoint::new(f64::from(p1.x), f64::from(p1.y));
     let gp2 = GeoPoint::new(f64::from(p2.x), f64::from(p2.y));
 
-    gp1.haversine_bearing(gp2) as f32
+    gp1.bearing(gp2) as f32
 }

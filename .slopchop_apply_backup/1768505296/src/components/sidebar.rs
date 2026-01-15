@@ -1,5 +1,4 @@
 use dioxus::prelude::*;
-use dioxus::document::eval;
 use crate::types::{AppConfig, TripData};
 use crate::parser::generate_prompt;
 use crate::components::config_ui::ConfigUI;
@@ -48,14 +47,10 @@ pub fn Sidebar(mut props: SidebarProps) -> Element {
                         class: "primary-btn",
                         onclick: move |_| {
                             let prompt = generate_prompt(&itinerary_input(), &props.config.read().route_types);
-                            generated_prompt.set(prompt.clone());
+                            generated_prompt.set(prompt);
                             active_tab.set("prompt".to_string());
-                            
-                            // Auto-copy logic
-                            let js = format!("navigator.clipboard.writeText(`{}`).then(() => window.show_toast('Prompt copied to clipboard!', 'success'), () => window.show_toast('Failed to copy', 'error'));", prompt.replace('`', "\\`"));
-                            let _ = eval(&js);
                         },
-                        "Generate Prompt & Copy ->"
+                        "Generate Prompt ->"
                     }
                 }
             }
@@ -65,16 +60,7 @@ pub fn Sidebar(mut props: SidebarProps) -> Element {
                 div { class: "panel",
                     h2 { "Copy to AI" }
                     div { class: "prompt-output", "{generated_prompt}" }
-                    p { class: "hint", "Prompt is already copied! Paste this into ChatGPT/Claude, then copy the JSON response." }
-                    button {
-                        class: "secondary-btn",
-                        onclick: move |_| {
-                            let prompt = generated_prompt();
-                            let js = format!("navigator.clipboard.writeText(`{}`).then(() => window.show_toast('Prompt copied!', 'success'));", prompt.replace('`', "\\`"));
-                            let _ = eval(&js);
-                        },
-                        "Copy Again"
-                    }
+                    p { class: "hint", "Paste this into ChatGPT/Claude, then copy the JSON response." }
                 }
             }
 
@@ -91,16 +77,8 @@ pub fn Sidebar(mut props: SidebarProps) -> Element {
                         class: "primary-btn",
                         onclick: move |_| {
                             match serde_json::from_str::<TripData>(&json_input()) {
-                                Ok(data) => {
-                                    props.trip_data.set(data);
-                                    let _ = eval("window.show_toast('Parsing JSON...', 'success')");
-                                },
-                                Err(e) => {
-                                    println!("JSON Error: {e}");
-                                    let msg = format!("JSON Error: {e}");
-                                    let js = format!("window.show_toast(`{}`, 'error')", msg.replace('`', "\\`"));
-                                    let _ = eval(&js);
-                                }
+                                Ok(data) => props.trip_data.set(data),
+                                Err(e) => println!("JSON Error: {e}"),
                             }
                         },
                         "Render Map"

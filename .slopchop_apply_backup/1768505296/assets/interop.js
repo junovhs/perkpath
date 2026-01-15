@@ -1,44 +1,47 @@
 // PerkPath JS Interop - The Bridge to Leaflet
 
-// Global state to hold the map instance
 let map = null;
 let layerGroup = null;
+let leaderLinesGroup = null;
+const activeLeaderLines = new Map();
 
 window.init_map = function() {
-    if (map) return; // Already initialized
+    if (map) return;
 
     console.log("Initializing Leaflet Map...");
     
-    // 1. Create Map
     map = L.map('map', {
         zoomControl: false,
         attributionControl: false
     }).setView([20, 0], 2);
 
-    // 2. Add Tiles (CartoDB Voyager - Clean & Modern)
     L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
         attribution: '&copy; OpenStreetMap &copy; CARTO',
         subdomains: 'abcd',
         maxZoom: 19
     }).addTo(map);
 
-    // 3. Create a layer group for easy clearing later
-    layerGroup = L.layerGroup().addTo(map);
-    
-    // Force a resize calculation after a short delay to handle container layout settling
+    leaderLinesGroup = L.layerGroup().addTo(map); // Bottom
+    layerGroup = L.layerGroup().addTo(map);       // Top
+
     setTimeout(() => { map.invalidateSize(); }, 100);
+
+    map.on('zoom', () => {
+        window.LeaderLineManager.updateAll(map, leaderLinesGroup, activeLeaderLines);
+    });
 }
 
 window.render_map_data = function(json_data) {
     if (!map || !layerGroup) return;
     
-    console.log("Rendering Data...", json_data);
+    console.log("Rendering Data...");
     const data = JSON.parse(json_data);
     
-    // Clear previous items
     layerGroup.clearLayers();
+    leaderLinesGroup.clearLayers();
+    activeLeaderLines.clear();
 
-    // 1. Draw Routes (Curves)
+    // 1. Draw Routes
     if (data.routes) {
         data.routes.forEach(route => {
             L.polyline(route.points, {
@@ -52,7 +55,28 @@ window.render_map_data = function(json_data) {
         });
     }
 
-    // 2. Draw Nodes (Dots)
+    // 2. Draw Arrows
+    if (data.arrows) {
+        data.arrows.forEach(arrow => {
+            const icon = L.divIcon({
+                className: 'arrow-icon',
+                html: `<div style="
+                    transform: rotate(${arrow.rotation}deg);
+                    color: ${arrow.color};
+                    font-size: 20px;
+                    line-height: 20px;
+                    text-align: center;
+                    filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3));
+                    margin-top: -10px; margin-left: -10px;
+                ">?</div>`,
+                iconSize: [20, 20],
+                iconAnchor: [10, 10]
+            });
+            L.marker([arrow.lat, arrow.lng], { icon: icon }).addTo(layerGroup);
+        });
+    }
+
+    // 3. Draw Nodes
     if (data.nodes) {
         data.nodes.forEach(node => {
             L.circleMarker([node.lat, node.lng], {
@@ -66,12 +90,12 @@ window.render_map_data = function(json_data) {
         });
     }
 
-    // 3. Draw Labels
+    // 4. Draw Interactive Labels
     if (data.labels) {
         data.labels.forEach(label => {
             const icon = L.divIcon({
-                className: 'custom-label', // We will style this via global CSS injection or inline
-                html: `<div style="
+                className: 'custom-label', 
+                html: `<div class="label-inner" style="
                     background: ${label.bg_color}; 
                     color: ${label.text_color}; 
                     padding: 4px 8px; 
@@ -80,17 +104,30 @@ window.render_map_data = function(json_data) {
                     font-weight: bold;
                     white-space: nowrap;
                     box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-                    transform: translate(-50%, -50%); /* Center over point */
+                    cursor: grab;
                 ">${label.text}</div>`,
-                iconSize: [0, 0], // Let CSS handle size
-                iconAnchor: [0, 0] // Centered via transform
+                iconSize: [0, 0],
+                iconAnchor: [0, 0] 
             });
             
-            L.marker([label.lat, label.lng], { icon: icon }).addTo(layerGroup);
+            const marker = L.marker([label.lat, label.lng], { 
+                icon: icon,
+                draggable: true,
+                autoPan: true 
+            }).addTo(layerGroup);
+
+            marker.nodeData = {
+                lat: label.lat,
+                lng: label.lng,
+                size: label.node_size
+            };
+
+            const updateFn = () => window.LeaderLineManager.updateLine(marker, map, leaderLinesGroup, activeLeaderLines);
+            marker.on('drag', updateFn);
+            marker.on('dragend', updateFn);
         });
     }
 
-    // 4. Fit Bounds
     if (data.nodes && data.nodes.length > 0) {
         const bounds = data.nodes.map(n => [n.lat, n.lng]);
         map.fitBounds(bounds, { padding: [50, 50] });

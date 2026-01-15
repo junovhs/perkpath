@@ -13,17 +13,17 @@ pub fn generate_prompt(itinerary_text: &str, route_types: &[RouteType]) -> Strin
 TRANSPORT TYPES: {transport_str}
 
 PARSING RULES:
- Extract all locations (cities, parks, airports, landmarks)
- Get accurate lat/lng coordinates for each
- Determine transport mode from context:
-  - "fly/flight"  fly
-  - "drive/motor/bus/coach"  drive
-  - "rail/train"  rail
-  - "cruise/sail/boat/ferry"  cruise
+  Extract all locations (cities, parks, airports, landmarks)
+  Get accurate lat/lng coordinates for each
+  Determine transport mode from context:
+  - "fly/flight"   fly
+  - "drive/motor/bus/coach"   drive
+  - "rail/train"   rail
+  - "cruise/sail/boat/ferry"   cruise
   - Default to "drive" if unclear
- First location: isStart: true
- Last location: isEnd: true
- OPTIONAL: If locations are geographically close together, add "labelPosition" to help avoid overlaps. Options: "right", "left", "top", "bottom", "top-right", "top-left", "bottom-right", "bottom-left"
+  First location: isStart: true
+  Last location: isEnd: true
+  OPTIONAL: If locations are geographically close together, add "labelPosition" to help avoid overlaps. Options: "right", "left", "top", "bottom", "top-right", "top-left", "bottom-right", "bottom-left"
 
 EXAMPLE INPUT:
 Part 1: Alaska
@@ -49,4 +49,46 @@ NOW PARSE THIS ITINERARY (return ONLY JSON, no markdown code blocks):
 
 {itinerary_text}"#
     )
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_generate_prompt_structure() {
+        let route_types = vec![
+            RouteType {
+                id: "car".to_string(),
+                name: "Car".to_string(),
+                color: "red".to_string(),
+                line_style: "solid".to_string(),
+            },
+            RouteType {
+                id: "plane".to_string(),
+                name: "Plane".to_string(),
+                color: "blue".to_string(),
+                line_style: "dashed".to_string(),
+            },
+        ];
+        
+        let text = "Go to Paris";
+        let prompt = generate_prompt(text, &route_types);
+        
+        // Check for key components
+        assert!(prompt.contains("You are a travel itinerary parser"));
+        assert!(prompt.contains("TRANSPORT TYPES: \"car\" | \"plane\""));
+        assert!(prompt.contains("PARSING RULES"));
+        assert!(prompt.contains("Go to Paris"));
+    }
+
+    #[test]
+    fn test_generate_prompt_empty_routes() {
+        let route_types: Vec<RouteType> = vec![];
+        let text = "Test";
+        let prompt = generate_prompt(text, &route_types);
+        
+        assert!(prompt.contains("TRANSPORT TYPES: "));
+        assert!(prompt.contains("Test"));
+    }
 }

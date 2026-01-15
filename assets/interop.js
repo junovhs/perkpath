@@ -5,10 +5,40 @@ let layerGroup = null;
 let leaderLinesGroup = null;
 const activeLeaderLines = new Map();
 
+// --- Toast Notification ---
+window.show_toast = function(message, type) {
+    let toast = document.getElementById('toast');
+    if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'toast';
+        document.body.appendChild(toast);
+    }
+    
+    toast.textContent = message;
+    toast.className = `toast ${type} show`;
+    
+    // Auto hide
+    setTimeout(() => {
+        toast.className = toast.className.replace('show', '');
+    }, 3000);
+}
+
+// --- Map Initialization ---
 window.init_map = function() {
-    if (map) return;
+    if (map) return true; // Already initialized
 
     console.log("Initializing Leaflet Map...");
+    
+    const mapContainer = document.getElementById('map');
+    if (!mapContainer) {
+        console.error("Map container #map not found!");
+        return false;
+    }
+
+    if (typeof L === 'undefined') {
+        console.error("Leaflet (L) is not loaded!");
+        return false;
+    }
     
     map = L.map('map', {
         zoomControl: false,
@@ -27,15 +57,29 @@ window.init_map = function() {
     setTimeout(() => { map.invalidateSize(); }, 100);
 
     map.on('zoom', () => {
-        window.LeaderLineManager.updateAll(map, leaderLinesGroup, activeLeaderLines);
+        if (window.LeaderLineManager) {
+            window.LeaderLineManager.updateAll(map, leaderLinesGroup, activeLeaderLines);
+        }
     });
+
+    return true;
 }
 
 window.render_map_data = function(json_data) {
-    if (!map || !layerGroup) return;
+    // Attempt init if not ready
+    if (!map) {
+        if (!window.init_map()) return;
+    }
     
     console.log("Rendering Data...");
-    const data = JSON.parse(json_data);
+    let data;
+    try {
+        data = JSON.parse(json_data);
+    } catch (e) {
+        console.error("Failed to parse JSON for map render", e);
+        window.show_toast("Map Render Failed: Invalid JSON", "error");
+        return;
+    }
     
     layerGroup.clearLayers();
     leaderLinesGroup.clearLayers();
@@ -122,7 +166,11 @@ window.render_map_data = function(json_data) {
                 size: label.node_size
             };
 
-            const updateFn = () => window.LeaderLineManager.updateLine(marker, map, leaderLinesGroup, activeLeaderLines);
+            const updateFn = () => {
+                if (window.LeaderLineManager) {
+                    window.LeaderLineManager.updateLine(marker, map, leaderLinesGroup, activeLeaderLines);
+                }
+            };
             marker.on('drag', updateFn);
             marker.on('dragend', updateFn);
         });
@@ -131,5 +179,6 @@ window.render_map_data = function(json_data) {
     if (data.nodes && data.nodes.length > 0) {
         const bounds = data.nodes.map(n => [n.lat, n.lng]);
         map.fitBounds(bounds, { padding: [50, 50] });
+        window.show_toast("Map Rendered Successfully!", "success");
     }
 }

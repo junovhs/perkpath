@@ -68,12 +68,7 @@ window.LeaderLineManager = {
 
     updateAll: function(map, lineGroup, activeLinesMap) {
         if (!map || !lineGroup) return;
-        
-        // CRITICAL FIX: Create a static array of keys to iterate.
-        // Iterating the Map directly while deleting/adding keys causes an infinite loop.
-        const markers = Array.from(activeLinesMap.keys());
-        
-        markers.forEach(marker => {
+        activeLinesMap.forEach((_, marker) => {
             this.updateLine(marker, map, lineGroup, activeLinesMap);
         });
     }

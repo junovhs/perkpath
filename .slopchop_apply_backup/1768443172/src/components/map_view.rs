@@ -1,12 +1,13 @@
 use dioxus::prelude::*;
 use crate::types::{AppConfig, TripData};
 
-#[derive(PartialEq, Props, Clone, Copy)]
+#[derive(PartialEq, Props, Clone)]
 pub struct MapViewProps {
     pub config: Signal<AppConfig>,
     pub trip_data: Signal<TripData>,
 }
 
+#[component]
 pub fn MapView(props: MapViewProps) -> Element {
     let location_count = props.trip_data.read().locations.len();
 

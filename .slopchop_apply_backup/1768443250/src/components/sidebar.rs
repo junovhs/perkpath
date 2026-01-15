@@ -10,12 +10,12 @@ pub struct SidebarProps {
 }
 
 pub fn Sidebar(mut props: SidebarProps) -> Element {
-    const TABS: &[&str] = &["input", "prompt", "render", "config"];
-
     let mut active_tab = use_signal(|| "input".to_string());
     let mut itinerary_input = use_signal(String::new);
     let mut generated_prompt = use_signal(String::new);
     let mut json_input = use_signal(String::new);
+
+    let tabs = vec!["input", "prompt", "render", "config"];
 
     rsx! {
         aside { class: "sidebar",
@@ -25,10 +25,10 @@ pub fn Sidebar(mut props: SidebarProps) -> Element {
             }
 
             nav { class: "tabs",
-                for tab in TABS {
+                for tab in tabs.iter() {
                     button {
                         class: if active_tab() == *tab { "tab active" } else { "tab" },
-                        onclick: move |_| active_tab.set((*tab).to_string()),
+                        onclick: move |_| active_tab.set(tab.to_string()),
                         "{tab.to_uppercase()}"
                     }
                 }

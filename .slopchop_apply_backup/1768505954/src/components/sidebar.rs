@@ -97,7 +97,6 @@ pub fn Sidebar(mut props: SidebarProps) -> Element {
                                 },
                                 Err(e) => {
                                     println!("JSON Error: {e}");
-                                    // FIXED: uninlined_format_args
                                     let msg = format!("JSON Error: {e}");
                                     let js = format!("window.show_toast(`{}`, 'error')", msg.replace('`', "\\`"));
                                     let _ = eval(&js);

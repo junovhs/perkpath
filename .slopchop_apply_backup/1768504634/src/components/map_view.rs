@@ -41,7 +41,6 @@ struct RenderLabel {
     text: String,
     bg_color: String,
     text_color: String,
-    node_size: u32, // Added for leader line threshold calculation
 }
 
 #[derive(Serialize)]
@@ -90,19 +89,22 @@ pub fn MapView(props: MapViewProps) -> Element {
         // Build Routes & Arrows
         for seg in &data.segments {
             if let (Some(start), Some(end)) = (loc_map.get(&seg.from), loc_map.get(&seg.to)) {
+                // Resolved P06: Use HashMap lookup instead of linear search
                 let style = route_style_map.get(&seg.transport)
-                    .or_else(|| route_style_map.values().next());
+                    .or_else(|| route_style_map.values().next()); // Fallback to first available
                 
                 let (color, line_style) = match style {
                     Some(s) => (s.color.clone(), s.line_style.clone()),
                     None => ("#888888".to_string(), "solid".to_string()),
                 };
 
+                // Generate Curve
                 let curve_points = generate_curve(start, end, 50);
                 let leaflet_points: Vec<[f32; 2]> = curve_points.iter()
                     .map(|p| [p.y, p.x]) 
                     .collect();
 
+                // Calculate Arrow (Fixes unused code warning by USING it)
                 let rotation = calculate_arrow_rotation(&curve_points);
                 if let Some(midpoint) = curve_points.get(curve_points.len() / 2) {
                     arrows.push(RenderArrow {
@@ -144,7 +146,6 @@ pub fn MapView(props: MapViewProps) -> Element {
                 text: loc.name.clone(),
                 bg_color: config.label_style.bg_color.clone(),
                 text_color: config.label_style.text_color.clone(),
-                node_size: config.node_style.size,
             });
         }
 
@@ -159,7 +160,7 @@ pub fn MapView(props: MapViewProps) -> Element {
             if (window.render_map_data) {{
                 window.render_map_data('{}');
             }}
-        ", json_payload.replace('\'', "\\'")));
+        ", json_payload.replace('\'', "\\'"))); // Fixed Clippy single-char pattern
     }
 
     rsx! {

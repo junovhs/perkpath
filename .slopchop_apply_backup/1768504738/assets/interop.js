@@ -3,6 +3,8 @@
 let map = null;
 let layerGroup = null;
 let leaderLinesGroup = null;
+
+// Track active leader lines: Map<LabelMarker, Polyline>
 const activeLeaderLines = new Map();
 
 window.init_map = function() {
@@ -21,14 +23,14 @@ window.init_map = function() {
         maxZoom: 19
     }).addTo(map);
 
+    // Order matters for z-index
     leaderLinesGroup = L.layerGroup().addTo(map); // Bottom
-    layerGroup = L.layerGroup().addTo(map);       // Top
-
+    layerGroup = L.layerGroup().addTo(map);       // Top (Markers)
+    
     setTimeout(() => { map.invalidateSize(); }, 100);
 
-    map.on('zoom', () => {
-        window.LeaderLineManager.updateAll(map, leaderLinesGroup, activeLeaderLines);
-    });
+    // Update lines on zoom since pixel distances change
+    map.on('zoom', updateAllLeaderLines);
 }
 
 window.render_map_data = function(json_data) {
@@ -106,7 +108,8 @@ window.render_map_data = function(json_data) {
                     box-shadow: 0 2px 4px rgba(0,0,0,0.2);
                     cursor: grab;
                 ">${label.text}</div>`,
-                iconSize: [0, 0],
+                iconSize: [0, 0], // CSS handles size
+                // Initially centered. Dragging will offset this relative to the lat/lng anchor.
                 iconAnchor: [0, 0] 
             });
             
@@ -116,15 +119,15 @@ window.render_map_data = function(json_data) {
                 autoPan: true 
             }).addTo(layerGroup);
 
+            // Store metadata for leader line calculations
             marker.nodeData = {
                 lat: label.lat,
                 lng: label.lng,
                 size: label.node_size
             };
 
-            const updateFn = () => window.LeaderLineManager.updateLine(marker, map, leaderLinesGroup, activeLeaderLines);
-            marker.on('drag', updateFn);
-            marker.on('dragend', updateFn);
+            marker.on('drag', () => updateLeaderLine(marker));
+            marker.on('dragend', () => updateLeaderLine(marker));
         });
     }
 
@@ -132,4 +135,86 @@ window.render_map_data = function(json_data) {
         const bounds = data.nodes.map(n => [n.lat, n.lng]);
         map.fitBounds(bounds, { padding: [50, 50] });
     }
+}
+
+// --- Leader Line Logic ---
+
+function updateAllLeaderLines() {
+    activeLeaderLines.forEach((_, marker) => {
+        updateLeaderLine(marker);
+    });
+}
+
+function updateLeaderLine(marker) {
+    if (!marker.nodeData) return;
+
+    const nodeLat = marker.nodeData.lat;
+    const nodeLng = marker.nodeData.lng;
+    const nodeSize = marker.nodeData.size;
+
+    // Get pixel positions
+    const nodePoint = map.latLngToContainerPoint([nodeLat, nodeLng]);
+    
+    // Get label bounding box
+    const element = marker.getElement();
+    if (!element) return;
+    
+    // We need the inner div because the wrapper has 0 width/height
+    const inner = element.querySelector('.label-inner');
+    if (!inner) return;
+
+    const labelRect = inner.getBoundingClientRect();
+    const mapRect = map.getContainer().getBoundingClientRect();
+
+    // Convert label rect to map-container relative coordinates
+    const rect = {
+        left: labelRect.left - mapRect.left,
+        right: labelRect.right - mapRect.left,
+        top: labelRect.top - mapRect.top,
+        bottom: labelRect.bottom - mapRect.top,
+        width: labelRect.width,
+        height: labelRect.height
+    };
+
+    // Find closest point on rect to the node center
+    const closest = findClosestPointOnRect(rect, nodePoint);
+
+    // Calculate distance
+    const dx = nodePoint.x - closest.x;
+    const dy = nodePoint.y - closest.y;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+
+    // Threshold: Only show line if label is far enough away (2.5x node size)
+    // We add a bit of buffer to prevent flickering
+    const threshold = nodeSize * 2.5 + 5;
+
+    // Remove existing line
+    if (activeLeaderLines.has(marker)) {
+        leaderLinesGroup.removeLayer(activeLeaderLines.get(marker));
+        activeLeaderLines.delete(marker);
+    }
+
+    if (dist > threshold) {
+        // Draw new line
+        // Convert container points back to LatLng
+        const startLatLng = map.containerPointToLatLng(nodePoint);
+        const endLatLng = map.containerPointToLatLng(closest);
+
+        const line = L.polyline([startLatLng, endLatLng], {
+            color: '#666',
+            weight: 1,
+            dashArray: '4, 4',
+            opacity: 0.6
+        }).addTo(leaderLinesGroup);
+
+        activeLeaderLines.set(marker, line);
+    }
+}
+
+function findClosestPointOnRect(rect, point) {
+    // Clamp point.x to [rect.left, rect.right]
+    const x = Math.max(rect.left, Math.min(point.x, rect.right));
+    // Clamp point.y to [rect.top, rect.bottom]
+    const y = Math.max(rect.top, Math.min(point.y, rect.bottom));
+    return { x, y };
 }

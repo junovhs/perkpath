@@ -1,17 +1,18 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="utf-8" />
-        <title>PerkPath</title>
-        <link
-            rel="stylesheet"
-            href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-        />
-        <link data-trunk rel="css" href="assets/style.css" />
-    </head>
-    <body>
-        <div id="main"></div>
-        <link data-trunk rel="rust" data-wasm-opt="z" />
-        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    </body>
-</html>
+<head>
+  <meta charset="utf-8">
+  <title>PerkPath</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link data-trunk rel="css" href="assets/style.css" />
+</head>
+<body>
+  <div id="main"></div>
+  <link data-trunk rel="rust" data-wasm-opt="z" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <!-- Load Logic First -->
+  <script src="assets/leader-lines.js"></script>
+  <!-- Load Bridge Second -->
+  <script src="assets/interop.js"></script>
+</body>
+</html>

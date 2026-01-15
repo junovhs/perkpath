@@ -17,7 +17,7 @@ struct RenderData {
     nodes: Vec<RenderNode>,
     labels: Vec<RenderLabel>,
     arrows: Vec<RenderArrow>,
-    legend: Vec<RenderLegendItem>, // New Legend Data
+    legend: Vec<RenderLegendItem>,
 }
 
 #[derive(Serialize)]
@@ -63,7 +63,6 @@ struct RenderLegendItem {
 }
 
 pub fn MapView(props: MapViewProps) -> Element {
-    // 1. Initialize Map on Mount
     use_effect(move || {
         let _ = eval(r"
             let attempts = 0;
@@ -79,14 +78,12 @@ pub fn MapView(props: MapViewProps) -> Element {
         ");
     });
 
-    // 2. Memoize calculation logic
     let render_json = use_memo(move || {
         let data = props.trip_data.read();
         let config = props.config.read();
         build_map_json(&data, &config)
     });
 
-    // 3. Send Data to JS
     let json_payload = render_json();
     if !json_payload.is_empty() {
         let _ = eval(&format!(r"
@@ -104,107 +101,15 @@ pub fn MapView(props: MapViewProps) -> Element {
     }
 }
 
-/// Pure function to transform App State into Renderable JSON for Leaflet
 fn build_map_json(data: &TripData, config: &AppConfig) -> String {
     if data.locations.is_empty() {
         return String::new();
     }
 
-    let mut routes = Vec::new();
-    let mut nodes = Vec::new();
-    let mut labels = Vec::new();
-    let mut arrows = Vec::new();
     let mut used_transport_ids = HashSet::new();
-
-    let loc_map: HashMap<String, &Location> = data.locations
-        .iter()
-        .map(|l| (l.name.clone(), l))
-        .collect();
-
-    let route_style_map: HashMap<String, &RouteType> = config.route_types
-        .iter()
-        .map(|rt| (rt.id.clone(), rt))
-        .collect();
-
-    // Build Routes & Arrows
-    for seg in &data.segments {
-        used_transport_ids.insert(seg.transport.clone()); // Track for legend
-
-        if let (Some(start), Some(end)) = (loc_map.get(&seg.from), loc_map.get(&seg.to)) {
-            let style = route_style_map.get(&seg.transport)
-                .or_else(|| route_style_map.values().next());
-            
-            let (color, line_style) = match style {
-                Some(s) => (s.color.clone(), s.line_style.clone()),
-                None => ("#888888".to_string(), "solid".to_string()),
-            };
-
-            let curve_points = generate_curve(start, end, 50);
-            let leaflet_points: Vec<[f32; 2]> = curve_points.iter()
-                .map(|p| [p.y, p.x]) 
-                .collect();
-
-            let rotation = calculate_arrow_rotation(&curve_points);
-            if let Some(midpoint) = curve_points.get(curve_points.len() / 2) {
-                arrows.push(RenderArrow {
-                    lat: midpoint.y,
-                    lng: midpoint.x,
-                    rotation,
-                    color: color.clone(),
-                    size: config.node_style.arrow_size,
-                });
-            }
-
-            routes.push(RenderRoute {
-                points: leaflet_points,
-                color,
-                style: line_style,
-            });
-        }
-    }
-
-    // Build Nodes & Labels
-    for loc in &data.locations {
-        // Determine colors based on Start/End status
-        let (node_color, label_bg, label_text) = if loc.is_start {
-            (
-                config.node_colors.start.clone(),
-                config.node_colors.start.clone(), // Start Label BG = Green
-                "#ffffff".to_string()             // Start Label Text = White
-            )
-        } else if loc.is_end {
-            (
-                config.node_colors.end.clone(),
-                config.node_colors.end.clone(),   // End Label BG = Red
-                "#ffffff".to_string()             // End Label Text = White
-            )
-        } else {
-            (
-                config.node_colors.default.clone(),
-                config.label_style.bg_color.clone(),
-                config.label_style.text_color.clone()
-            )
-        };
-
-        nodes.push(RenderNode {
-            lat: loc.lat,
-            lng: loc.lng,
-            color: node_color,
-            size: config.node_style.size,
-        });
-
-        labels.push(RenderLabel {
-            lat: loc.lat,
-            lng: loc.lng,
-            text: loc.name.clone(),
-            bg_color: label_bg,
-            text_color: label_text,
-            font_size: config.label_style.font_size,
-            node_size: config.node_style.size,
-        });
-    }
-
-    // Build Legend
+    let (routes, arrows) = create_render_routes(data, config, &mut used_transport_ids);
+    let (nodes, labels) = create_render_nodes_and_labels(data, config);
+    
     let legend: Vec<RenderLegendItem> = config.route_types
         .iter()
         .filter(|rt| used_transport_ids.contains(&rt.id))
@@ -217,4 +122,62 @@ fn build_map_json(data: &TripData, config: &AppConfig) -> String {
 
     let render_data = RenderData { routes, nodes, labels, arrows, legend };
     serde_json::to_string(&render_data).unwrap_or_default()
+}
+
+fn create_render_routes(
+    data: &TripData, 
+    config: &AppConfig,
+    used_ids: &mut HashSet<String>
+) -> (Vec<RenderRoute>, Vec<RenderArrow>) {
+    let mut routes = Vec::new();
+    let mut arrows = Vec::new();
+
+    let loc_map: HashMap<String, &Location> = data.locations
+        .iter().map(|l| (l.name.clone(), l)).collect();
+
+    let style_map: HashMap<String, &RouteType> = config.route_types
+        .iter().map(|rt| (rt.id.clone(), rt)).collect();
+
+    for seg in &data.segments {
+        used_ids.insert(seg.transport.clone());
+        if let (Some(start), Some(end)) = (loc_map.get(&seg.from), loc_map.get(&seg.to)) {
+            let style = style_map.get(&seg.transport).or_else(|| style_map.values().next());
+            let (color, l_style) = style.map_or(("#888".to_owned(), "solid".to_owned()), |s| (s.color.clone(), s.line_style.clone()));
+
+            let curve = generate_curve(start, end, 50);
+            let leaflet_pts: Vec<[f32; 2]> = curve.iter().map(|p| [p.y, p.x]).collect();
+
+            if let Some(mid) = curve.get(curve.len() / 2) {
+                arrows.push(RenderArrow {
+                    lat: mid.y, lng: mid.x, rotation: calculate_arrow_rotation(&curve),
+                    color: color.clone(), size: config.node_style.arrow_size,
+                });
+            }
+            routes.push(RenderRoute { points: leaflet_pts, color, style: l_style });
+        }
+    }
+    (routes, arrows)
+}
+
+fn create_render_nodes_and_labels(data: &TripData, config: &AppConfig) -> (Vec<RenderNode>, Vec<RenderLabel>) {
+    let mut nodes = Vec::new();
+    let mut labels = Vec::new();
+
+    for loc in &data.locations {
+        let (n_color, l_bg, l_txt) = if loc.is_start {
+            (config.node_colors.start.clone(), config.node_colors.start.clone(), "#fff".to_owned())
+        } else if loc.is_end {
+            (config.node_colors.end.clone(), config.node_colors.end.clone(), "#fff".to_owned())
+        } else {
+            (config.node_colors.default.clone(), config.label_style.bg_color.clone(), config.label_style.text_color.clone())
+        };
+
+        nodes.push(RenderNode { lat: loc.lat, lng: loc.lng, color: n_color, size: config.node_style.size });
+        labels.push(RenderLabel {
+            lat: loc.lat, lng: loc.lng, text: loc.name.clone(),
+            bg_color: l_bg, text_color: l_txt,
+            font_size: config.label_style.font_size, node_size: config.node_style.size,
+        });
+    }
+    (nodes, labels)
 }

@@ -4,7 +4,7 @@
 
 PerkPath transforms unstructured travel itinerary text into professional, interactive, and customizable maps. It leverages a Rust-native core for heavy computation and geocoding logic, bridged to a high-performance Leaflet-based rendering layer.
 
-## The Tech Stack
+## ?? The Tech Stack
 
 PerkPath is built with a "Brain and Nervous System" architecture:
 
@@ -22,7 +22,7 @@ This project adheres to the **Spencer Nunamaker Development Philosophy**:
 3.  **Atomic Units**: Code is decomposed into files under 1500 tokens to ensure reasoning clarity.
 4.  **Verification Gates**: Every commit must pass the **SlopChop Protocol** (Clippy + Tests + Structural Audit).
 
-## Getting Started
+## ?? Getting Started
 
 ### Prerequisites
 -   Rust (Stable)
@@ -40,5 +40,5 @@ The project is configured for **Cloudflare Pages**.
 -   **Output Dir**: `dist`
 -   **Build Command**: `trunk build --release`
 
-## License
-Proprietary / Private. All rights reserved.
+## ?? License
+Proprietary / Private. All rights reserved.

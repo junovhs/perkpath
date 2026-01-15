@@ -2,3 +2,4 @@
 /dist
 .env
 .slopchop
+.slopchop_apply_backup

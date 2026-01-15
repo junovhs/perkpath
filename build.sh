@@ -11,7 +11,9 @@ cargo --version
 
 rustup target add wasm32-unknown-unknown
 
-# Use --version flag with exact version
 cargo install dioxus-cli --version "0.5.6" --locked
+
+# Remove Cargo.lock so Vercel generates v3 format
+rm -f Cargo.lock
 
 dx build --release --platform web

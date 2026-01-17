@@ -1,8 +1,10 @@
-use dioxus::prelude::*;
-use dioxus::document::eval;
-use crate::types::{AppConfig, TripData};
-use crate::parser::generate_prompt;
 use crate::components::config_ui::ConfigUI;
+use crate::components::location_search::LocationSearch;
+use crate::geocoding::SearchResult;
+use crate::parser::generate_prompt;
+use crate::types::{AppConfig, TripData};
+use dioxus::document::eval;
+use dioxus::prelude::*;
 
 #[derive(PartialEq, Props, Clone)]
 pub struct SidebarProps {
@@ -50,12 +52,23 @@ pub fn Sidebar(mut props: SidebarProps) -> Element {
                             let prompt = generate_prompt(&itinerary_input(), &props.config.read().route_types);
                             generated_prompt.set(prompt.clone());
                             active_tab.set("prompt".to_string());
-                            
-                            // Auto-copy logic
+
                             let js = format!("navigator.clipboard.writeText(`{}`).then(() => window.show_toast('Prompt copied to clipboard!', 'success'), () => window.show_toast('Failed to copy', 'error'));", prompt.replace('`', "\\`"));
                             let _ = eval(&js);
                         },
                         "Generate Prompt & Copy ->"
+                    }
+                }
+
+                div { class: "panel",
+                    h2 { "Quick Add Stop" }
+                    LocationSearch {
+                        placeholder: "Search cities...",
+                        on_select: move |result: SearchResult| {
+                            web_sys::console::log_1(
+                                &format!("Selected: {} at ({}, {})", result.name, result.lat, result.lng).into()
+                            );
+                        }
                     }
                 }
             }
@@ -97,7 +110,6 @@ pub fn Sidebar(mut props: SidebarProps) -> Element {
                                 },
                                 Err(e) => {
                                     println!("JSON Error: {e}");
-                                    // FIXED: uninlined_format_args
                                     let msg = format!("JSON Error: {e}");
                                     let js = format!("window.show_toast(`{}`, 'error')", msg.replace('`', "\\`"));
                                     let _ = eval(&js);
@@ -115,4 +127,4 @@ pub fn Sidebar(mut props: SidebarProps) -> Element {
             }
         }
     }
-}
+}

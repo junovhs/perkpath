@@ -1,18 +1,19 @@
 #![allow(non_snake_case)]
 
-use dioxus::prelude::*;
-use components::sidebar::Sidebar;
 use components::map_view::MapView;
+use components::sidebar::Sidebar;
+use dioxus::prelude::*;
 use types::{AppConfig, TripData};
 
 mod components;
 mod geo;
+mod geocoding;
 mod parser;
 mod types;
 
 fn main() {
-    // Basic launch. 
-    // Since we disabled default features in Cargo.toml, the devtools client 
+    // Basic launch.
+    // Since we disabled default features in Cargo.toml, the devtools client
     // (which causes the WebSocket errors) will not be initialized.
     launch(App);
 }
@@ -36,4 +37,4 @@ fn App() -> Element {
             }
         }
     }
-}
+}

@@ -1,3 +1,7 @@
+#![allow(clippy::unwrap_used)]
+#![allow(clippy::expect_used)]
+#![allow(clippy::cast_possible_truncation)]
+
 use std::collections::HashMap;
 use std::env;
 use std::fs::File;
@@ -20,7 +24,7 @@ fn main() {
     let mut file = File::create(&dest_path).unwrap();
     file.write_all(&index_data).unwrap();
 
-    eprintln!("Wrote index to {:?}", dest_path);
+    eprintln!("Wrote index to {}", dest_path.display());
 }
 
 #[derive(Clone)]
@@ -31,7 +35,7 @@ struct Place {
     lat: f32,
     lng: f32,
     country: String,
-    admin1: String, // State/province code
+    admin1: String,
     population: u32,
 }
 
@@ -59,7 +63,7 @@ fn parse_geonames(path: &str) -> Vec<Place> {
                 .split(',')
                 .filter(|s| !s.is_empty() && s.len() > 2)
                 .take(10)
-                .map(|s| s.to_lowercase())
+                .map(str::to_lowercase)
                 .collect();
 
             Some(Place {
@@ -69,7 +73,7 @@ fn parse_geonames(path: &str) -> Vec<Place> {
                 lat: cols[4].parse().unwrap_or(0.0),
                 lng: cols[5].parse().unwrap_or(0.0),
                 country: cols[8].to_string(),
-                admin1: cols[10].to_string(), // State code for US
+                admin1: cols[10].to_string(),
                 population,
             })
         })

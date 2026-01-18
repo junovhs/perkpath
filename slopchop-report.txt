@@ -1,135 +1,43 @@
 SLOPCHOP CHECK REPORT
-Generated: 2026-01-16 22:52:38
-Status: PASSED
+Generated: 2026-01-17 16:19:34
+Status: FAILED
 
 === DASHBOARD ===
 Top 5 Cognitive Complexity:
+  74   src/geocoding.rs
   14   src/components/map_view.rs
   4    src/components/toast.rs
   3    src/components/legend.rs
-  1    src/components/map_commands.rs
-  1    src/geo.rs
+  3    build.rs
 
 Top 5 Largest Files (Tokens):
-  3229  docs/design-pivot-brief.md
+  10634 docs/perkpath-tech-spec.md
+  3245  docs/design-pivot-brief.md
+  2358  src/geocoding.rs
   1476  src/geo.rs
   1415  src/types.rs
-  1187  src/components/map_commands.rs
-  1105  src/components/map_view.rs
 
 === VIOLATIONS ===
-None. Codebase is clean.
+[SlopChop Internal Rules]
+src/geocoding.rs:1 | LAW OF ATOMICITY | File size is 2358 tokens (Limit: 1500)
+src/geocoding.rs:60 | LAW OF COMPLEXITY | Function 'country_matches' has cognitive complexity 74 (Max: 15)
+src/geocoding.rs:157 | LAW OF COMPLEXITY | Function 'search' has cognitive complexity 55 (Max: 15)
+src/geocoding.rs:34 | CBO | Class 'Geocoder' is tightly coupled (CBO: 26)
+src/geocoding.rs:34 | SFOUT | Class 'Geocoder' has high fan-out (SFOUT: 26)
+
+[External Tools]
 
 === FULL OUTPUT LOGS ===
 
->>> COMMAND: cargo clippy --all-targets -- -D warnings -W clippy::pedantic -W clippy::unwrap_used -W clippy::expect_used -A clippy::module_name_repetitions -A clippy::must_use_candidate -A clippy::missing_errors_doc
-    Updating crates.io index
- Downloading crates ...
-  Downloaded gloo-timers v0.3.0
-  Downloaded sledgehammer_bindgen_macro v0.6.5
-  Downloaded getrandom v0.2.17
-  Downloaded data-encoding v2.10.0
-   Compiling proc-macro2 v1.0.105
-   Compiling serde_core v1.0.228
-    Checking futures-core v0.3.31
-   Compiling quote v1.0.43
-   Compiling libc v0.2.180
-    Checking tracing-core v0.1.36
-   Compiling unicode-xid v0.2.6
-   Compiling typenum v1.19.0
-   Compiling generic-array v0.14.7
-    Checking dioxus-core-types v0.6.2
-   Compiling lazy-js-bundle v0.6.2
-    Checking byteorder v1.5.0
-   Compiling proc-macro2-diagnostics v0.10.1
-   Compiling httparse v1.10.1
-   Compiling serde_json v1.0.149
-    Checking bitflags v2.10.0
-    Checking bytes v1.11.0
-    Checking ppv-lite86 v0.2.21
-    Checking cpufeatures v0.2.17
-    Checking log v0.4.29
-    Checking euclid v0.22.11
-    Checking data-encoding v2.10.0
-    Checking utf-8 v0.7.6
-    Checking sledgehammer_utils v0.3.1
-    Checking futures-channel v0.3.31
-    Checking keyboard-types v0.7.0
-    Checking hash32 v0.3.1
-   Compiling dioxus-document v0.6.3
-   Compiling dioxus-interpreter-js v0.6.2
-   Compiling dioxus-web v0.6.3
-    Checking heapless v0.8.0
-    Checking http v1.4.0
-    Checking rstar v0.12.2
-   Compiling syn v2.0.114
-   Compiling const_format_proc_macros v0.2.34
-   Compiling dioxus-config-macro v0.6.2
-    Checking geo-types v0.7.18
-    Checking parking_lot_core v0.9.12
-    Checking getrandom v0.2.17
-    Checking rand_core v0.6.4
-    Checking parking_lot v0.12.5
-    Checking geo v0.28.0
-    Checking block-buffer v0.10.4
-    Checking crypto-common v0.1.7
-    Checking const_format v0.2.35
-    Checking rand_chacha v0.3.1
-    Checking digest v0.10.7
-    Checking rand v0.8.5
-    Checking sha1 v0.10.6
-   Compiling wasm-bindgen-macro-support v0.2.108
-   Compiling darling_core v0.21.3
-   Compiling dioxus-rsx v0.6.2
-   Compiling tracing-attributes v0.1.31
-   Compiling serde_derive v1.0.228
-   Compiling futures-macro v0.3.31
-   Compiling pin-project-internal v1.1.10
-   Compiling warnings-macro v0.2.0
-   Compiling thiserror-impl v1.0.69
-   Compiling dioxus-html-internal-macro v0.6.2
-   Compiling sledgehammer_bindgen_macro v0.6.5
-   Compiling async-trait v0.1.89
-   Compiling dioxus-core-macro v0.6.3
-    Checking futures-util v0.3.31
-    Checking pin-project v1.1.10
-    Checking tracing v0.1.44
-    Checking thiserror v1.0.69
-    Checking tungstenite v0.23.0
-    Checking generational-box v0.6.2
-    Checking warnings v0.2.1
-   Compiling darling_macro v0.21.3
-   Compiling wasm-bindgen-macro v0.2.108
-   Compiling darling v0.21.3
-   Compiling enumset_derive v0.14.0
-    Checking wasm-bindgen v0.2.108
-    Checking serde v1.0.228
-    Checking js-sys v0.3.85
-    Checking sledgehammer_bindgen v0.6.0
-    Checking dioxus-cli-config v0.6.3
-    Checking enumset v1.1.10
-    Checking slotmap v1.1.1
-    Checking dioxus-core v0.6.3
-    Checking dioxus-signals v0.6.3
-    Checking dioxus-devtools-types v0.6.2
-    Checking dioxus-history v0.6.2
-    Checking dioxus-hooks v0.6.2
-    Checking dioxus-devtools v0.6.2
-    Checking dioxus-html v0.6.3
-    Checking web-sys v0.3.85
-    Checking wasm-bindgen-futures v0.4.58
-    Checking serde-wasm-bindgen v0.5.0
-    Checking gloo-timers v0.3.0
-    Checking dioxus v0.6.3
-    Checking perkpath v0.1.0 (/home/juno/perkpath)
-    Finished `dev` profile [unoptimized + debuginfo] target(s) in 11.95s
+>>> COMMAND: cargo clippy --target x86_64-unknown-linux-gnu --all-targets -- -D warnings -W clippy::pedantic -W clippy::unwrap_used -W clippy::expect_used -A clippy::module_name_repetitions -A clippy::must_use_candidate -A clippy::missing_errors_doc
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.13s
 
 
->>> COMMAND: cargo test
+>>> COMMAND: cargo test --target x86_64-unknown-linux-gnu
 
-running 9 tests
-test geo::tests::test_calculate_arrow_rotation ... ok
+running 13 tests
 test geo::tests::test_calculate_arrow_rotation_empty ... ok
+test geo::tests::test_calculate_arrow_rotation ... ok
 test geo::tests::test_generate_curve_endpoints ... ok
 test geo::tests::test_generate_curve_resolution ... ok
 test parser::tests::test_generate_prompt_empty_routes ... ok
@@ -137,103 +45,17 @@ test parser::tests::test_generate_prompt_structure ... ok
 test types::tests::test_location_defaults ... ok
 test types::tests::test_trip_data_defaults ... ok
 test types::tests::test_full_roundtrip ... ok
+test geocoding::tests::test_geocoding_prefix ... ok
+test geocoding::tests::test_us_state_display ... ok
+test geocoding::tests::test_geocoding_search ... ok
+test geocoding::tests::test_country_filter ... ok
 
-test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.41s
 
 
-   Compiling proc-macro2 v1.0.105
-   Compiling futures-core v0.3.31
-   Compiling tracing-core v0.1.36
-   Compiling dioxus-core-types v0.6.2
-   Compiling libc v0.2.180
-   Compiling serde_core v1.0.228
-   Compiling byteorder v1.5.0
-   Compiling typenum v1.19.0
-   Compiling cpufeatures v0.2.17
-   Compiling bytes v1.11.0
-   Compiling log v0.4.29
-   Compiling bitflags v2.10.0
-   Compiling data-encoding v2.10.0
-   Compiling ppv-lite86 v0.2.21
-   Compiling httparse v1.10.1
-   Compiling euclid v0.22.11
-   Compiling utf-8 v0.7.6
-   Compiling sledgehammer_utils v0.3.1
-   Compiling futures-channel v0.3.31
-   Compiling keyboard-types v0.7.0
-   Compiling hash32 v0.3.1
-   Compiling heapless v0.8.0
-   Compiling quote v1.0.43
-   Compiling http v1.4.0
-   Compiling syn v2.0.114
-   Compiling generic-array v0.14.7
-   Compiling const_format_proc_macros v0.2.34
-   Compiling dioxus-config-macro v0.6.2
-   Compiling rstar v0.12.2
-   Compiling parking_lot_core v0.9.12
-   Compiling getrandom v0.2.17
-   Compiling rand_core v0.6.4
-   Compiling geo-types v0.7.18
-   Compiling parking_lot v0.12.5
-   Compiling block-buffer v0.10.4
-   Compiling crypto-common v0.1.7
-   Compiling const_format v0.2.35
-   Compiling rand_chacha v0.3.1
-   Compiling digest v0.10.7
-   Compiling sha1 v0.10.6
-   Compiling rand v0.8.5
-   Compiling geo v0.28.0
-   Compiling serde_json v1.0.149
-   Compiling wasm-bindgen-macro-support v0.2.108
-   Compiling darling_core v0.21.3
-   Compiling proc-macro2-diagnostics v0.10.1
-   Compiling dioxus-rsx v0.6.2
-   Compiling tracing-attributes v0.1.31
-   Compiling futures-macro v0.3.31
-   Compiling serde_derive v1.0.228
-   Compiling pin-project-internal v1.1.10
-   Compiling warnings-macro v0.2.0
-   Compiling thiserror-impl v1.0.69
-   Compiling async-trait v0.1.89
-   Compiling dioxus-html-internal-macro v0.6.2
-   Compiling sledgehammer_bindgen_macro v0.6.5
-   Compiling dioxus-core-macro v0.6.3
-   Compiling futures-util v0.3.31
-   Compiling pin-project v1.1.10
-   Compiling tracing v0.1.44
-   Compiling thiserror v1.0.69
-   Compiling tungstenite v0.23.0
-   Compiling generational-box v0.6.2
-   Compiling warnings v0.2.1
-   Compiling wasm-bindgen-macro v0.2.108
-   Compiling darling_macro v0.21.3
-   Compiling wasm-bindgen v0.2.108
-   Compiling darling v0.21.3
-   Compiling enumset_derive v0.14.0
-   Compiling js-sys v0.3.85
-   Compiling sledgehammer_bindgen v0.6.0
-   Compiling dioxus-cli-config v0.6.3
-   Compiling serde v1.0.228
-   Compiling enumset v1.1.10
-   Compiling slotmap v1.1.1
-   Compiling dioxus-core v0.6.3
-   Compiling dioxus-signals v0.6.3
-   Compiling dioxus-devtools-types v0.6.2
-   Compiling dioxus-history v0.6.2
-   Compiling wasm-bindgen-futures v0.4.58
-   Compiling web-sys v0.3.85
-   Compiling serde-wasm-bindgen v0.5.0
-   Compiling gloo-timers v0.3.0
-   Compiling dioxus-hooks v0.6.2
-   Compiling dioxus-devtools v0.6.2
-   Compiling dioxus-html v0.6.3
-   Compiling dioxus-document v0.6.3
-   Compiling dioxus-interpreter-js v0.6.2
-   Compiling dioxus-web v0.6.3
-   Compiling dioxus v0.6.3
    Compiling perkpath v0.1.0 (/home/juno/perkpath)
-    Finished `test` profile [unoptimized + debuginfo] target(s) in 11.25s
-     Running unittests src/main.rs (target/debug/deps/perkpath-00f1434b889878ac)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.34s
+     Running unittests src/main.rs (target/x86_64-unknown-linux-gnu/debug/deps/perkpath-d444391cfd09646f)
 
 
 >>> COMMAND: slopchop scan --locality

@@ -17,11 +17,9 @@ ignore_tokens_on = [
     "target",
     "vendor",
 ]
-
 [rules.safety]
 require_safety_comment = true
 ban_unsafe = false
-
 [rules.locality]
 max_distance = 4
 l1_threshold = 2
@@ -31,7 +29,6 @@ god_module_threshold = 20
 deadwood_threshold = 2
 mode = "warn"
 exempt_patterns = []
-
 [preferences]
 auto_copy = true
 auto_format = false
@@ -42,10 +39,9 @@ require_plan = true
 write_fix_packet = false
 fix_packet_path = "slopchop-fixme.txt"
 auto_promote = true
-
 [commands]
 check = [
-    "cargo clippy --all-targets -- -D warnings -W clippy::pedantic -W clippy::unwrap_used -W clippy::expect_used -A clippy::module_name_repetitions -A clippy::must_use_candidate -A clippy::missing_errors_doc",
-    "cargo test",
+    "cargo clippy --target x86_64-unknown-linux-gnu --all-targets -- -D warnings -W clippy::pedantic -W clippy::unwrap_used -W clippy::expect_used -A clippy::module_name_repetitions -A clippy::must_use_candidate -A clippy::missing_errors_doc",
+    "cargo test --target x86_64-unknown-linux-gnu",
 ]
 fix = ["cargo fmt"]

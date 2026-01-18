@@ -65,9 +65,8 @@ pub fn Sidebar(mut props: SidebarProps) -> Element {
                     LocationSearch {
                         placeholder: "Search cities...",
                         on_select: move |result: SearchResult| {
-                            web_sys::console::log_1(
-                                &format!("Selected: {} at ({}, {})", result.name, result.lat, result.lng).into()
-                            );
+                            // TODO: Add to trip_data
+                            println!("Selected: {} at ({}, {})", result.name, result.lat, result.lng);
                         }
                     }
                 }

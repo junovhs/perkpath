@@ -1,61 +1,77 @@
-# PerkPath
+# PerkPath by TravelPerks
 
-**High-Integrity Visual Itinerary Map Generator**
+PerkPath is a precision tool for travel agents and enthusiasts to generate professional visual itinerary maps from text descriptions. It leverages AI to structure unstructured itinerary text into geospatial JSON, which is then rendered onto an interactive, customizable map.
 
-PerkPath transforms unstructured travel itinerary text into professional, interactive, and customizable maps. It leverages a Rust-native core for heavy computation and geocoding logic, bridged to a high-performance Leaflet-based rendering layer.
+## Key Features
 
-## The Tech Stack
+-   **AI-Powered Parsing**: Converts raw text (e.g., "Flight to Nairobi, drive to Serengeti") into structured map data.
+-   **Smart Layouts**: Automatic label collision detection and placement optimization.
+-   **Bezier Routes**: Aesthetic curved paths with transport-specific styling (dashed for flight/rail, solid for drive/cruise).
+-   **Draggable Customization**:
+    -   Drag labels to fine-tune placement.
+    -   Dynamic leader lines appear when labels are moved far from nodes.
+    -   Drag the legend to position it perfectly.
+-   **High-Res Export**: Export 2k+ resolution PNGs with transparent backgrounds (optional) for brochures and web use.
+-   **Layer Management**: Toggle visibility of base maps, routes, nodes, labels, and arrows independently.
 
-PerkPath is built with a "Brain and Nervous System" architecture:
+## Tech Stack
 
--   **The Brain (Rust/Dioxus)**: Owns 100% of the state, parsing logic, geospatial math (`geo.rs`), and UI components including Legend and Toast notifications. Type-safe and logic-rot-proof.
--   **The Body (HTML/CSS)**: Decades of layout refinement used for the UI and map overlays.
--   **The Nervous System (JS Bridge)**: A single ~100 line file (`map-bridge.js`) that executes Leaflet API calls. Zero logic — Rust generates commands, JS just runs them.
--   **The Compiler (Trunk)**: Bundles the Rust/WASM binary and assets for web deployment.
+-   **Core**: TypeScript, Vite
+-   **Mapping**: Leaflet, CartoDB Voyager Tiles
+-   **Geospatial**: Turf.js (Bezier curves, bearing calculations)
+-   **Export**: html2canvas
+-   **Linting/Formatting**: Biome
+-   **Architecture**: Atomic Module Pattern (SlopChop Compliant)
 
-### JS Minimization
+## Setup & Development
 
-We follow a "Rust-first" philosophy. The JS footprint has been reduced from 4 files (~15KB) to 1 file (~3KB):
+1.  **Install Dependencies**
+    ```bash
+    npm install
+    ```
 
-| Component | Before | After |
-|-----------|--------|-------|
-| Legend | JS (legend.js) | Rust (Dioxus) |
-| Toast | JS (interop.js) | Rust (Dioxus) |
-| Renderer | JS (renderer.js) | Rust commands |
-| Leader Lines | JS (leader-lines.js) | JS bridge |
-| Leaflet Calls | Scattered | Single bridge |
+2.  **Run Development Server**
+    ```bash
+    npm run dev
+    ```
 
-The remaining JS exists solely because Leaflet is a JS library. All logic, math, and UI state lives in Rust.
+3.  **Type Check & Lint**
+    ```bash
+    npm run check
+    ```
 
-## Development Philosophy
+4.  **Build for Production**
+    ```bash
+    npm run build
+    ```
 
-This project adheres to the **Spencer Nunamaker Development Philosophy**:
+## Deployment
 
-1.  **Goal-Driven**: We don't solve for "clearing blocks"; we solve for the end-user experience.
-2.  **Zero Debt**: Every bug is fixed at the root. We do not suppress warnings or defer maintenance.
-3.  **Atomic Units**: Code is decomposed into files under 1500 tokens to ensure reasoning clarity.
-4.  **Verification Gates**: Every commit must pass the **SlopChop Protocol** (Clippy + Tests + Structural Audit).
+Pushes to `main` deploy to Cloudflare Pages through GitHub Actions. The deploy workflow installs Node.js dependencies with `npm ci`, builds the Vite app with `npm run build`, and publishes the generated `dist/` directory to the existing `perkpath` Pages project.
 
-## Getting Started
+## Usage Workflow
 
-### Prerequisites
--   Rust (Stable)
--   Trunk: `cargo install trunk`
--   WASM Target: `rustup target add wasm32-unknown-unknown`
+1.  **Input**: Paste itinerary text into the **Input** tab.
+2.  **Prompt**: Click "Generate AI Prompt". Copy the result.
+3.  **AI Processing**: Paste the prompt into an LLM (Claude, ChatGPT). Copy the JSON response.
+4.  **Render**: Paste the JSON into the **Render** tab.
+5.  **Refine**:
+    -   Use **Config** to adjust colors, sizes, and transport types.
+    -   Drag labels on the map to fix overlaps.
+    -   Ctrl+Click arrows or labels to hide specific elements.
+6.  **Export**: Use the **Export** buttons to download high-res assets.
 
-### Running Locally
-```bash
-trunk serve
-```
-Open `http://localhost:8080` in your browser.
+## Project Structure
 
-### Deployment
-The project deploys automatically via **GitHub Actions** to **Cloudflare Pages**.
+This project follows the **SlopChop Protocol**, enforcing strict file size limits (<2000 tokens) and complexity rules to ensure maintainability.
 
--   Push to `main` triggers build and deploy
--   Build: `trunk build --release`
--   Output: `dist/`
--   Live: [perkpath.pages.dev](https://perkpath.pages.dev)
+-   `src/map.ts`: Main renderer entry point.
+-   `src/map-draw.ts`: Low-level drawing logic (nodes, segments).
+-   `src/geo.ts`: Geospatial math (curves, arrow rotation).
+-   `src/layout.ts`: Label positioning algorithms.
+-   `src/config-ui.ts`: UI state management.
+-   `src/leader-lines.ts`: Dynamic connector lines logic.
 
 ## License
-Proprietary / Private. All rights reserved.
+
+Private / Proprietary.

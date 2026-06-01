@@ -1,5 +1,7 @@
-/target
-/dist
-.env
-.slopchop
-.slopchop_apply_backup
+.slopchop/
+.slopchop_apply_backup/
+.slopchop_intent
+context.txt
+dist/
+node_modules/
+target/

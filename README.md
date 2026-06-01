@@ -1,77 +1,180 @@
 # PerkPath by TravelPerks
 
-PerkPath is a precision tool for travel agents and enthusiasts to generate professional visual itinerary maps from text descriptions. It leverages AI to structure unstructured itinerary text into geospatial JSON, which is then rendered onto an interactive, customizable map.
+PerkPath turns a plain-language itinerary into a polished, export-ready route map. Paste an itinerary, generate an AI prompt, paste back structured JSON, and fine-tune the final visual with marketer-friendly controls for labels, routes, colors, legends, saved views, and high-resolution exports.
 
-## Key Features
+It is designed for teams who need to move quickly from travel narrative to visual storytelling: tour builders, campaign marketers, sales enablement teams, itinerary designers, and product teams prototyping AI-assisted workflows.
 
--   **AI-Powered Parsing**: Converts raw text (e.g., "Flight to Nairobi, drive to Serengeti") into structured map data.
--   **Smart Layouts**: Automatic label collision detection and placement optimization.
--   **Bezier Routes**: Aesthetic curved paths with transport-specific styling (dashed for flight/rail, solid for drive/cruise).
--   **Draggable Customization**:
-    -   Drag labels to fine-tune placement.
-    -   Dynamic leader lines appear when labels are moved far from nodes.
-    -   Drag the legend to position it perfectly.
--   **High-Res Export**: Export 2k+ resolution PNGs with transparent backgrounds (optional) for brochures and web use.
--   **Layer Management**: Toggle visibility of base maps, routes, nodes, labels, and arrows independently.
+<img src="./docs/example.png" alt="PerkPath interface showing itinerary controls and an interactive route map" width="100%" />
 
-## Tech Stack
+## Why it exists
 
--   **Core**: TypeScript, Vite
--   **Mapping**: Leaflet, CartoDB Voyager Tiles
--   **Geospatial**: Turf.js (Bezier curves, bearing calculations)
--   **Export**: html2canvas
--   **Linting/Formatting**: Biome
--   **Architecture**: Atomic Module Pattern (SlopChop Compliant)
+Great travel experiences are spatial, but most itinerary content starts as unstructured text: flights, transfers, cruises, rail segments, stops, and overnight locations. Turning that into a beautiful map usually means manual design work, fragile spreadsheets, or one-off graphics.
 
-## Setup & Development
+PerkPath compresses that workflow into a repeatable product loop:
 
-1.  **Install Dependencies**
-    ```bash
-    npm install
-    ```
+1. Start with itinerary text.
+2. Generate a structured AI extraction prompt.
+3. Ask an LLM to return clean map JSON.
+4. Render the itinerary as an interactive map.
+5. Adjust the visual system until it is presentation-ready.
+6. Export high-resolution assets for marketing, sales, or client-facing materials.
 
-2.  **Run Development Server**
-    ```bash
-    npm run dev
-    ```
+<img src="./docs/perkpath-flow.svg" alt="PerkPath workflow: itinerary to prompt to JSON to map" width="100%" />
 
-3.  **Type Check & Lint**
-    ```bash
-    npm run check
-    ```
+## What it does
 
-4.  **Build for Production**
-    ```bash
-    npm run build
-    ```
+PerkPath is not just a map renderer. It is an end-to-end workflow for converting messy itinerary text into controlled, brandable map outputs.
+
+### AI-assisted itinerary structuring
+
+The app creates a purpose-built prompt that asks an AI model to extract locations, coordinates, transport modes, and route segments from raw itinerary text. This keeps the model focused on producing a predictable schema instead of a prose summary.
+
+### Interactive route rendering
+
+PerkPath renders structured itinerary data on a Leaflet map using curved route geometry, directional arrows, transport-specific styling, node markers, and labels. It supports common travel movement types including flights, rail, driving, and cruises.
+
+### Design controls for non-engineers
+
+The interface exposes practical visual controls: base map visibility, route visibility, node visibility, label visibility, arrows, color presets, label styling, node size, arrow size, and legend scale. The goal is to let a marketer or itinerary specialist make the map look right without touching code.
+
+### Manual polish where automation falls short
+
+Automated map layouts are useful, but the last 10% often requires human judgment. PerkPath supports draggable labels, leader lines when labels are moved away from their nodes, draggable legends, and selective hiding for visual cleanup.
+
+### Saved views and reusable outputs
+
+Rendered maps can be saved as views, reloaded, imported, exported, and shared as JSON. This makes the workflow repeatable across trips, campaigns, and design iterations.
+
+### High-resolution export
+
+PerkPath can export the full map or individual layers such as base map, labels, and routes. This makes it easier to produce assets for decks, landing pages, brochures, social posts, and internal reviews.
+
+## Product instincts behind the build
+
+PerkPath demonstrates a few principles we value in product work:
+
+- **Meet users where the work starts.** Itineraries usually begin as text, not clean datasets.
+- **Use AI as a workflow accelerator, not a black box.** The app separates prompt generation, JSON review, and map rendering so humans stay in control.
+- **Make the output editable.** The map is not treated as a final answer; it is treated as a draft that can be refined.
+- **Design for real production needs.** Export modes, saved views, layer toggles, and styling controls reflect the messy handoff between product, marketing, sales, and design.
+- **Keep the technical architecture legible.** The codebase separates geospatial math, rendering, layout, configuration, storage, and UI behavior into focused modules.
+
+## Core workflow
+
+### 1. Paste an itinerary
+
+Add raw itinerary text in the **Input** tab. This can be a multi-day travel plan, a cruise-and-land journey, a regional tour, or a sequence of city stops.
+
+### 2. Generate the AI prompt
+
+Click **Generate AI Prompt**. PerkPath produces a structured prompt designed to get back map-ready JSON from an LLM.
+
+### 3. Ask an AI model for JSON
+
+Paste the generated prompt into ChatGPT, Claude, or another AI assistant. The expected response is a JSON object containing a trip title, locations, and route segments.
+
+### 4. Render the map
+
+Paste the JSON response into the **Render** tab and click **Render Map**. PerkPath plots the itinerary as an interactive route map.
+
+### 5. Refine the visual
+
+Use the configuration controls to adjust the look and feel. Drag labels, reposition the legend, toggle layers, and hide individual details as needed.
+
+### 6. Export the result
+
+Export a full map or specific layers for downstream marketing and presentation use.
+
+## Feature highlights
+
+| Area         | What PerkPath supports                                                               |
+| ------------ | ------------------------------------------------------------------------------------ |
+| Input        | Raw itinerary text, generated AI prompts, pasted JSON responses                      |
+| Mapping      | Leaflet map rendering, location nodes, route segments, directional arrows            |
+| Route design | Transport-specific colors and line styles for drive, rail, cruise, and flight        |
+| Layout       | Label positioning, draggable labels, leader lines, draggable legend                  |
+| Controls     | Layer toggles, color presets, label styling, node sizing, arrow sizing, legend scale |
+| Persistence  | Saved views, imported views, exported view JSON                                      |
+| Export       | Full map, base-only, labels-only, and routes-only exports                            |
+
+## Tech stack
+
+- **TypeScript** for maintainable application logic
+- **Vite** for fast local development and production builds
+- **Leaflet** for interactive web mapping
+- **Turf.js** for geospatial calculations and route curves
+- **html2canvas** for visual export workflows
+- **Biome** for code checking and formatting
+
+## Project structure
+
+```text
+perkpath/
+├── docs/
+│   ├── example.png
+│   └── perkpath-flow.svg
+├── public/
+├── src/
+│   ├── config.ts
+│   ├── config-ui.ts
+│   ├── export.ts
+│   ├── geo.ts
+│   ├── label-drag.ts
+│   ├── layout.ts
+│   ├── legend.ts
+│   ├── map.ts
+│   ├── map-draw.ts
+│   ├── prompt.ts
+│   ├── route-types-ui.ts
+│   ├── types.ts
+│   ├── view-manager.ts
+│   └── view-storage.ts
+├── index.html
+├── package.json
+├── tsconfig.json
+└── vite.config.ts
+```
+
+## Local development
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+Run the development server:
+
+```bash
+npm run dev
+```
+
+Run checks:
+
+```bash
+npm run check
+```
+
+Build for production:
+
+```bash
+npm run build
+```
+
+Preview the production build:
+
+```bash
+npm run preview
+```
 
 ## Deployment
 
-Pushes to `main` deploy to Cloudflare Pages through GitHub Actions. The deploy workflow installs Node.js dependencies with `npm ci`, builds the Vite app with `npm run build`, and publishes the generated `dist/` directory to the existing `perkpath` Pages project.
+The app is built as a static Vite site. The existing GitHub Actions workflow builds the project and publishes the `dist/` directory to Cloudflare Pages.
 
-## Usage Workflow
+## Notes for future improvements
 
-1.  **Input**: Paste itinerary text into the **Input** tab.
-2.  **Prompt**: Click "Generate AI Prompt". Copy the result.
-3.  **AI Processing**: Paste the prompt into an LLM (Claude, ChatGPT). Copy the JSON response.
-4.  **Render**: Paste the JSON into the **Render** tab.
-5.  **Refine**:
-    -   Use **Config** to adjust colors, sizes, and transport types.
-    -   Drag labels on the map to fix overlaps.
-    -   Ctrl+Click arrows or labels to hide specific elements.
-6.  **Export**: Use the **Export** buttons to download high-res assets.
-
-## Project Structure
-
-This project follows the **SlopChop Protocol**, enforcing strict file size limits (<2000 tokens) and complexity rules to ensure maintainability.
-
--   `src/map.ts`: Main renderer entry point.
--   `src/map-draw.ts`: Low-level drawing logic (nodes, segments).
--   `src/geo.ts`: Geospatial math (curves, arrow rotation).
--   `src/layout.ts`: Label positioning algorithms.
--   `src/config-ui.ts`: UI state management.
--   `src/leader-lines.ts`: Dynamic connector lines logic.
+PerkPath already proves the core workflow. Natural next steps would include direct LLM integration, stronger JSON validation, route editing in the map canvas, brand preset management, and export templates sized for common marketing surfaces.
 
 ## License
 
-Private / Proprietary.
+Private / proprietary.

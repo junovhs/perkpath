@@ -1,4 +1,4 @@
-# PerkPath by TravelPerks
+# PerkPath
 
 PerkPath turns a plain-language itinerary into a polished, export-ready route map. Paste an itinerary, generate an AI prompt, paste back structured JSON, and fine-tune the final visual with marketer-friendly controls for labels, routes, colors, legends, saved views, and high-resolution exports.
 
